@@ -34,7 +34,7 @@ async function addPoint(player) {
     const errorMessage = document.getElementById('add-error-message');
 
     if (!response.ok) {
-        errorMessage.textContent = await data.error;
+        errorMessage.textContent = data.error;
         return;
     }
 
@@ -55,7 +55,7 @@ async function undoPoint() {
     const errorMessage = document.getElementById('undo-error-message');
 
     if (!response.ok) {
-        errorMessage.textContent = await data.error;
+        errorMessage.textContent = data.error;
         return;
     }
 
@@ -81,7 +81,7 @@ async function createNewMatch(playerAName, playerBName) {
     const errorMessage = document.getElementById('create-error-message');
 
     if (!response.ok) {
-        errorMessage.textContent = await data.error;
+        errorMessage.textContent = data.error;
         return;
     }
 
