@@ -5,7 +5,7 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
-let currentMatch = null;
+let currentMatch = createMatch('playerA', 'playerB');
 let matchHistory = [];
 
 app.get('/api/match', (request, response) => {
@@ -13,7 +13,10 @@ app.get('/api/match', (request, response) => {
 });
 
 app.post('/api/match', (request, response) => {
-    currentMatch = createMatch(request.body.playerA, request.body.playerB);
+    currentMatch = createMatch(
+        request.body.playerAName,
+        request.body.playerBName
+    );
     
     matchHistory = [];
 
