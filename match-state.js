@@ -1,5 +1,5 @@
 function createMatch(playerAName, playerBName) {
-    if (!playerAName || !playerBName) {
+    if (!playerAName.trim() || !playerBName.trim()) {
         throw new Error('Player names are required');
     }
 
