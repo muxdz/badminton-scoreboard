@@ -13,7 +13,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // New match is created with default values
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
 
     assert.equal(match.playerA.score, 0);
     assert.equal(match.playerB.score, 0);
@@ -26,14 +26,14 @@ function scorePoints(match, player, numberOfPoints) {
 
 // Scoring a point updates the player's score with a new match
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
     const updatedMatch = scorePoint(match, 'playerA');
     assert.equal(updatedMatch.playerA.score, 1);
 }
 
 // Player must lead by 2 points to win a game
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
     match.playerA.score = 20;
     match.playerB.score = 20;
 
@@ -48,7 +48,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // Reaching 30 points wins a game even without a two-point lead.
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
     match.playerA.score = 29;
     match.playerB.score = 29;
 
@@ -60,7 +60,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // Player B wins the second game and becomes the match winner.
 {
-    let match = createMatch();
+    let match = createMatch('playerA', 'playerB');
     match = scorePoints(match, 'playerB', 21);
     match = scorePoints(match, 'playerB', 21);
 
@@ -71,7 +71,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // A completed match rejects further points.
 {
-    let match = createMatch();
+    let match = createMatch('playerA', 'playerB');
     match = scorePoints(match, 'playerA', 21);
     match = scorePoints(match, 'playerA', 21);
 
@@ -83,7 +83,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // An invalid player is rejected.
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
 
     assert.throws(
         () => scorePoint(match, 'playerC'),
@@ -93,7 +93,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // A new game increments its number, resets scores, and keeps the winner serving.
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
     match.playerA.score = 10;
     match.playerB.score = 20;
 
@@ -108,7 +108,7 @@ function scorePoints(match, player, numberOfPoints) {
 
 // Scoring does not mutate the input match or its nested player state.
 {
-    const match = createMatch();
+    const match = createMatch('playerA', 'playerB');
     const originalSnapshot = structuredClone(match);
     const updatedMatch = scorePoint(match, 'playerB');
 

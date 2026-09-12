@@ -5,7 +5,7 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 
-let currentMatch = createMatch();
+let currentMatch = null;
 let matchHistory = [];
 
 app.get('/api/match', (request, response) => {
