@@ -2,6 +2,7 @@ const express = require('express');
 const { createMatch, scorePoint } = require('./match-state.js');
 
 const app = express();
+app.use(express.static('public'));
 
 let currentMatch = createMatch();
 

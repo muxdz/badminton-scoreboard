@@ -1,0 +1,38 @@
+function renderMatch(match) {
+    document.getElementById('player-a-name').textContent = match.playerA.name;
+    document.getElementById('player-b-name').textContent = match.playerB.name;
+    document.getElementById('player-a-score').textContent = match.playerA.score;
+    document.getElementById('player-b-score').textContent = match.playerB.score;
+    document.getElementById('player-a-games-won').textContent = match.playerA.gamesWon;
+    document.getElementById('player-b-games-won').textContent = match.playerB.gamesWon;
+    document.getElementById('game-number').textContent = match.gameNumber;
+    document.getElementById('current-server').textContent = match[match.currentServer].name;
+
+    if (match.isMatchOver) {
+        document.getElementById('add-point-player-a').disabled = true;
+        document.getElementById('add-point-player-b').disabled = true;
+    }
+}
+
+async function loadMatch() {
+    const response = await fetch('/api/match');
+    const match = await response.json();
+
+    renderMatch(match);
+}
+
+loadMatch();
+
+async function addPoint(player) {
+    const response = await fetch(`/api/score/${player}`, {
+        method: 'POST'
+    });
+    const match = await response.json();
+
+    renderMatch(match);
+}
+
+document.getElementById('add-point-player-a')
+    .addEventListener('click', () => addPoint('playerA'));
+document.getElementById('add-point-player-b')
+    .addEventListener('click', () => addPoint('playerB'));
