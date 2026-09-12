@@ -11,6 +11,9 @@ function renderMatch(match) {
     if (match.isMatchOver) {
         document.getElementById('add-point-player-a').disabled = true;
         document.getElementById('add-point-player-b').disabled = true;
+    } else {
+        document.getElementById('add-point-player-a').disabled = false;
+        document.getElementById('add-point-player-b').disabled = false;
     }
 }
 
@@ -27,9 +30,16 @@ async function addPoint(player) {
     const response = await fetch(`/api/score/${player}`, {
         method: 'POST'
     });
-    const match = await response.json();
+    const data = await response.json();
+    const errorMessage = document.getElementById('add-error-message');
 
-    renderMatch(match);
+    if (!response.ok) {
+        errorMessage.textContent = await data;
+        return;
+    }
+
+    errorMessage.textContent = '';
+    renderMatch(data);
 }
 
 document.getElementById('add-point-player-a')
@@ -41,9 +51,16 @@ async function undoPoint() {
     const response = await fetch('/api/undo', {
         method: 'POST'
     });
-    const match = await response.json();
+    const data = await response.json();
+    const errorMessage = document.getElementById('undo-error-message');
 
-    renderMatch(match);
+    if (!response.ok) {
+        errorMessage.textContent = await data;
+        return;
+    }
+
+    errorMessage.textContent = '';
+    renderMatch(data);
 }
 
 document.getElementById('undo')
