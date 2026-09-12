@@ -97,7 +97,6 @@ function scorePoints(match, player, numberOfPoints) {
     match.playerA.score = 10;
     match.playerB.score = 20;
 
-console.log('All scoring tests passed.')
     const nextGame = scorePoint(match, 'playerB');
 
     assert.equal(nextGame.gameNumber, 2);
