@@ -1,14 +1,122 @@
 const assert = require('node:assert/strict');
-const { createMatch } = require('./match-state.js');
+const { createMatch, scorePoint } = require('./match-state.js');
 
-const match = createMatch();
+function scorePoints(match, player, numberOfPoints) {
+    let updatedMatch = match;
 
-assert.equal(match.playerA.score, 0);
-assert.equal(match.playerB.score, 0);
-assert.equal(match.playerA.gamesWon, 0);
-assert.equal(match.playerB.gamesWon, 0);
-assert.equal(match.currentServer, 'playerA');
-assert.equal(match.isMatchOver, false);
-assert.equal(match.winner, null);
+    for (let point = 0; point < numberOfPoints; point += 1) {
+        updatedMatch = scorePoint(updatedMatch, player);
+    }
+
+    return updatedMatch;
+}
+
+// New match is created with default values
+{
+    const match = createMatch();
+
+    assert.equal(match.playerA.score, 0);
+    assert.equal(match.playerB.score, 0);
+    assert.equal(match.playerA.gamesWon, 0);
+    assert.equal(match.playerB.gamesWon, 0);
+    assert.equal(match.currentServer, 'playerA');
+    assert.equal(match.isMatchOver, false);
+    assert.equal(match.winner, null);
+}
+
+// Scoring a point updates the player's score with a new match
+{
+    const match = createMatch();
+    const updatedMatch = scorePoint(match, 'playerA');
+    assert.equal(updatedMatch.playerA.score, 1);
+}
+
+// Player must lead by 2 points to win a game
+{
+    const match = createMatch();
+    match.playerA.score = 20;
+    match.playerB.score = 20;
+
+    const atTwentyOne = scorePoint(match, 'playerA');
+    assert.equal(atTwentyOne.playerA.gamesWon, 0);
+    assert.equal(atTwentyOne.playerB.gamesWon, 0);
+
+    const gameWon = scorePoint(atTwentyOne, 'playerA');
+    assert.equal(gameWon.playerA.gamesWon, 1);
+    assert.equal(gameWon.playerB.gamesWon, 0);
+}
+
+// Reaching 30 points wins a game even without a two-point lead.
+{
+    const match = createMatch();
+    match.playerA.score = 29;
+    match.playerB.score = 29;
+
+    const updatedMatch = scorePoint(match, 'playerB');
+
+    assert.equal(updatedMatch.playerA.gamesWon, 0);
+    assert.equal(updatedMatch.playerB.gamesWon, 1);
+}
+
+// Player B wins the second game and becomes the match winner.
+{
+    let match = createMatch();
+    match = scorePoints(match, 'playerB', 21);
+    match = scorePoints(match, 'playerB', 21);
+
+    assert.equal(match.playerB.gamesWon, 2);
+    assert.equal(match.isMatchOver, true);
+    assert.equal(match.winner, 'playerB');
+}
+
+// A completed match rejects further points.
+{
+    let match = createMatch();
+    match = scorePoints(match, 'playerA', 21);
+    match = scorePoints(match, 'playerA', 21);
+
+    assert.throws(
+        () => scorePoint(match, 'playerB'),
+        /match is over/
+    );
+}
+
+// An invalid player is rejected.
+{
+    const match = createMatch();
+
+    assert.throws(
+        () => scorePoint(match, 'playerC'),
+        /not valid/
+    );
+}
+
+// A new game increments its number, resets scores, and keeps the winner serving.
+{
+    const match = createMatch();
+    match.playerA.score = 10;
+    match.playerB.score = 20;
+
+console.log('All scoring tests passed.')
+    const nextGame = scorePoint(match, 'playerB');
+
+    assert.equal(nextGame.gameNumber, 2);
+    assert.equal(nextGame.playerA.score, 0);
+    assert.equal(nextGame.playerB.score, 0);
+    assert.equal(nextGame.currentServer, 'playerB');
+    assert.equal(nextGame.currentReceiver, 'playerA');
+}
+
+// Scoring does not mutate the input match or its nested player state.
+{
+    const match = createMatch();
+    const originalSnapshot = structuredClone(match);
+    const updatedMatch = scorePoint(match, 'playerB');
+
+    assert.deepEqual(match, originalSnapshot);
+    assert.notEqual(updatedMatch, match);
+    assert.notEqual(updatedMatch.playerA, match.playerA);
+    assert.notEqual(updatedMatch.playerB, match.playerB);
+}
 
 console.log('All match state tests passed.');

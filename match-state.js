@@ -21,4 +21,45 @@ function createMatch() {
     return matchStatus;
 }
 
-module.exports = { createMatch };
+function scorePoint(match, player) {
+    if (player !== 'playerA' && player !== 'playerB') {
+        throw new Error('This player is not valid');
+    }
+
+    if (match.isMatchOver) {
+        throw new Error('Cannot score a point after the match is over');
+    }
+
+    const updatedMatch = {
+        ...match,
+        playerA: { ...match.playerA },
+        playerB: { ...match.playerB }
+    };
+    const opponent = player === 'playerA' ? 'playerB' : 'playerA';
+
+    updatedMatch.currentServer = player;
+    updatedMatch.currentReceiver = opponent;
+    updatedMatch[player].score += 1;
+
+    const playerScore = updatedMatch[player].score;
+    const opponentScore = updatedMatch[opponent].score;
+    const wonAtThirty = playerScore === 30;
+    const wonByTwo = playerScore >= 21 && playerScore - opponentScore >= 2;
+
+    if (wonAtThirty || wonByTwo) {
+        updatedMatch[player].gamesWon += 1;
+
+        if (updatedMatch[player].gamesWon === 2) {
+            updatedMatch.isMatchOver = true;
+            updatedMatch.winner = player;
+        } else {
+            updatedMatch.gameNumber += 1;
+            updatedMatch.playerA.score = 0;
+            updatedMatch.playerB.score = 0;
+        }
+    }
+
+    return updatedMatch;
+}
+
+module.exports = { createMatch, scorePoint };
