@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/muxdz/badminton-scoreboard/issues"
   },
-  "homepage": "https://github.com/muxdz/badminton-scoreboard#readme"
+  "homepage": "https://github.com/muxdz/badminton-scoreboard#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
