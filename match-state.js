@@ -1,11 +1,15 @@
-function createMatch() {
+function createMatch(player1name, player2name) {
+    if (!player1name || !player2name) {
+        throw new Error('Player names are required');
+    }
+
     const playerA = {
-        name: 'Player A',
+        name: player1name,
         gamesWon: 0,
         score: 0
     }
     const playerB = {
-        name: 'Player B',
+        name: player2name,
         gamesWon: 0,
         score: 0
     }

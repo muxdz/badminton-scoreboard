@@ -3,11 +3,20 @@ const { createMatch, scorePoint } = require('./match-state.js');
 
 const app = express();
 app.use(express.static('public'));
+app.use(express.json());
 
 let currentMatch = createMatch();
 let matchHistory = [];
 
 app.get('/api/match', (request, response) => {
+    response.json(currentMatch);
+});
+
+app.post('/api/match', (request, response) => {
+    currentMatch = createMatch(request.body.playerA, request.body.playerB);
+    
+    matchHistory = [];
+
     response.json(currentMatch);
 });
 
