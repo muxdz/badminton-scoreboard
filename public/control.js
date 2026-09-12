@@ -65,3 +65,33 @@ async function undoPoint() {
 
 document.getElementById('undo')
     .addEventListener('click', () => undoPoint());
+
+async function createNewMatch(playerAName, playerBName) {
+    const response = await fetch('/api/match', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            playerAName,
+            playerBName
+        })
+    });
+    const data = await response.json();
+    const errorMessage = document.getElementById('create-error-message');
+
+    if (!response.ok) {
+        errorMessage.textContent = await data.error;
+        return;
+    }
+
+    errorMessage.textContent = '';
+    renderMatch(data);
+}
+
+document.getElementById('create-match')
+    .addEventListener('click', () => {
+        const playerAName = document.getElementById('create-a-name').value;
+        const playerBName = document.getElementById('create-b-name').value;
+        createNewMatch(playerAName, playerBName);
+})
