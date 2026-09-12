@@ -13,19 +13,24 @@ app.get('/api/match', (request, response) => {
 });
 
 app.post('/api/match', (request, response) => {
-    currentMatch = createMatch(
-        request.body.playerAName,
-        request.body.playerBName
-    );
-    
-    matchHistory = [];
+    try {
+        currentMatch = createMatch(
+            request.body.playerAName,
+            request.body.playerBName
+        );
 
-    response.json(currentMatch);
+        matchHistory = [];
+
+        response.json(currentMatch);
+    } catch (error) {
+        response.status(400).json({ error: error.message });
+        return;
+    }
 });
 
 app.post('/api/score/:player', (request, response) => {
     try {
-        updatedMatch = scorePoint(currentMatch, request.params.player);
+        const updatedMatch = scorePoint(currentMatch, request.params.player);
         matchHistory.push(currentMatch);
         currentMatch = updatedMatch;
 
