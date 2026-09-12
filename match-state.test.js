@@ -118,4 +118,20 @@ function scorePoints(match, player, numberOfPoints) {
     assert.notEqual(updatedMatch.playerB, match.playerB);
 }
 
+// Custom names are stored in the match state.
+{
+    const match = createMatch('customA', 'customB');
+    assert.equal(match.playerA.name, 'customA');
+    assert.equal(match.playerB.name, 'customB');
+}
+
+// Empty names throw an error.
+{
+    assert.throws(
+        () => createMatch('', ''),
+        /Player names are required/
+    );
+}
+
+
 console.log('All match state tests passed.');
