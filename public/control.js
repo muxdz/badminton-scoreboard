@@ -36,3 +36,15 @@ document.getElementById('add-point-player-a')
     .addEventListener('click', () => addPoint('playerA'));
 document.getElementById('add-point-player-b')
     .addEventListener('click', () => addPoint('playerB'));
+
+async function undoPoint() {
+    const response = await fetch('/api/undo', {
+        method: 'POST'
+    });
+    const match = await response.json();
+
+    renderMatch(match);
+}
+
+document.getElementById('undo')
+    .addEventListener('click', () => undoPoint());
