@@ -13,8 +13,9 @@ app.get('/api/match', (request, response) => {
 
 app.post('/api/score/:player', (request, response) => {
     try {
+        updatedMatch = scorePoint(currentMatch, request.params.player);
         matchHistory.push(currentMatch);
-        currentMatch = scorePoint(currentMatch, request.params.player);
+        currentMatch = updatedMatch;
 
         response.json(currentMatch);
     } catch (error) {
