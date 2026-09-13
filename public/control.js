@@ -95,3 +95,9 @@ document.getElementById('create-match')
         const playerBName = document.getElementById('create-b-name').value;
         createNewMatch(playerAName, playerBName);
 })
+
+const socket = io();
+
+socket.on('matchUpdated', (match) => {
+    renderMatch(match);
+});
