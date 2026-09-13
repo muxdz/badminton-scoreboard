@@ -34,8 +34,19 @@ function renderMatch(match) {
     playerBName.textContent = match.playerB.name;
     playerBName.title = match.playerB.name;
 
-    document.getElementById('player-a-score').textContent = match.playerA.score;
-    document.getElementById('player-b-score').textContent = match.playerB.score;
+    const playerAScore = document.getElementById('player-a-score');
+    const playerBScore = document.getElementById('player-b-score');
+
+    playerAScore.textContent = match.playerA.score;
+    playerBScore.textContent = match.playerB.score;
+    playerAScore.classList.toggle(
+        'is-match-winner',
+        match.isMatchOver && match.winner === 'playerA'
+    );
+    playerBScore.classList.toggle(
+        'is-match-winner',
+        match.isMatchOver && match.winner === 'playerB'
+    );
     document.getElementById('game-number').textContent = match.gameNumber;
 
     const playerAServing = match.currentServer === 'playerA';
