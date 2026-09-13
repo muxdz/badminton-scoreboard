@@ -79,12 +79,57 @@ button {
 }
 
 .player-card {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     min-height: 300px;
     padding: 24px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 14px;
     background: #22282f;
+}
+
+.score-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 88px;
+    margin-top: auto;
+    border: 0;
+    border-radius: 12px;
+    color: #211b0d;
+    background: #f1c86a;
+    font-size: 2rem;
+    font-weight: 850;
+    line-height: 1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+    transition: background-color 160ms ease-out, transform 100ms ease-out, box-shadow 160ms ease-out;
+}
+
+.score-button:hover:not(:disabled) {
+    background: #ffda80;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+
+.score-button:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.score-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.score-button-label {
+    max-width: 22ch;
+    overflow: hidden;
+    font-size: 0.92rem;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .player-card h3 {
