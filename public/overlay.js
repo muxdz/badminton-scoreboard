@@ -19,7 +19,15 @@ function renderMatch(match) {
             match.currentServer === 'playerB'
         );
 
-    document.getElementById('winning-player').textContent = match.winningPlayer;
+    const winnerElement = document.getElementById('winning-player');
+
+    winnerElement.hidden = !match.isMatchOver;
+
+    if (match.isMatchOver) {
+        winnerElement.textContent = `${match[match.winner].name} wins the match`;
+    } else {
+        winnerElement.textContent = '';
+    }
 }
 
 socket.on('matchUpdated', renderMatch);
