@@ -215,6 +215,29 @@ button {
     letter-spacing: -0.03em;
 }
 
+.status-row {
+    min-height: 42px;
+    margin: 18px 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    color: #211b0d;
+    background: #f1c86a;
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.status-badge[hidden] {
+    display: none;
+}
+
 .new-match-panel {
     margin-top: 24px;
 }

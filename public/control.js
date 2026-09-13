@@ -1,3 +1,13 @@
+function setStatusBadge(player, status, isWinner) {
+    const badge = document.getElementById(`${player}-point-status`);
+    const label = isWinner
+        ? 'Match won'
+        : status?.replace('-', ' ');
+
+    badge.textContent = label ?? '';
+    badge.hidden = !label;
+}
+
 function renderMatch(match) {
     document.getElementById('player-a-name').textContent = match.playerA.name;
     document.getElementById('player-b-name').textContent = match.playerB.name;
@@ -21,8 +31,8 @@ function renderMatch(match) {
     document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!playerAServing));
     document.getElementById('player-b-serve').setAttribute('aria-hidden', String(playerAServing));
 
-    document.getElementById('player-a-point-status').textContent = match.pointStatus.playerA ?? '';
-    document.getElementById('player-b-point-status').textContent = match.pointStatus.playerB ?? '';
+    setStatusBadge('player-a', match.pointStatus.playerA, match.winner === 'playerA');
+    setStatusBadge('player-b', match.pointStatus.playerB, match.winner === 'playerB');
 
     if (match.isMatchOver) {
         document.getElementById('add-point-player-a').disabled = true;
