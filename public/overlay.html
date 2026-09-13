@@ -5,36 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Badminton Scoreboard</title>
+    <link rel="stylesheet" href="/overlay.css">
     <script src="/socket.io/socket.io.js" defer></script>
     <script src="/overlay.js" defer></script>
-    <link rel="stylesheet" href="overlay.css">
 </head>
 <body>
-    <main class="scoreboard">
-    <div class="game-box">
-        <span class="label">Game</span>
-        <strong id="game-number">1</strong>
-    </div>
+    <main class="overlay" aria-label="Live badminton score">
+        <section class="scoreboard" aria-label="Match score">
+            <div class="game-marker" aria-label="Current game">
+                <span>Game</span>
+                <strong id="game-number">1</strong>
+            </div>
 
-    <section class="player">
-        <span id="player-a-serving" class="serve-dot"></span>
-        <span id="player-a-name" class="player-name">Player A</span>
-        <span class="games">
-            G<span id="player-a-games-won">0</span>
-        </span>
-        <strong id="player-a-score" class="score">0</strong>
-    </section>
+            <div class="players">
+                <div class="player-row">
+                    <span id="player-a-serving" class="serve-indicator" aria-hidden="true">Serve</span>
+                    <span id="player-a-name" class="player-name">Player A</span>
+                </div>
+                <div class="player-row">
+                    <span id="player-b-serving" class="serve-indicator" aria-hidden="true">Serve</span>
+                    <span id="player-b-name" class="player-name">Player B</span>
+                </div>
+            </div>
 
-    <section class="player">
-        <span id="player-b-serving" class="serve-dot"></span>
-        <span id="player-b-name" class="player-name">Player B</span>
-        <span class="games">
-            G<span id="player-b-games-won">0</span>
-        </span>
-        <strong id="player-b-score" class="score">0</strong>
-    </section>
+            <div id="completed-games" class="completed-games" aria-label="Completed game scores"></div>
 
-    <div id="winning-player" class="winner" hidden></div>
+            <div class="live-scores" aria-label="Current game score">
+                <strong id="player-a-score">0</strong>
+                <strong id="player-b-score">0</strong>
+            </div>
+        </section>
+
+        <div id="winning-player" class="winner" role="status" hidden></div>
     </main>
 </body>
 </html>
