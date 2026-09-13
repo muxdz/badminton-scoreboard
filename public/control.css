@@ -139,6 +139,46 @@ button {
     white-space: nowrap;
 }
 
+.serve-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 20px;
+    margin-bottom: 10px;
+    color: #f1c86a;
+    font-size: 0.78rem;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    visibility: hidden;
+}
+
+.player-card.is-serving {
+    border-color: rgba(241, 200, 106, 0.58);
+}
+
+.player-card.is-serving .serve-indicator {
+    visibility: visible;
+}
+
+.serve-dot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #fff9e9;
+    border-radius: 50%;
+    background: #f1c86a;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.42);
+}
+
+.server-announcement {
+    margin: 16px 0 0;
+    color: #aeb5bc;
+}
+
+.server-announcement strong {
+    color: #f7f3e9;
+}
+
 .player-metrics {
     display: flex;
     align-items: flex-end;

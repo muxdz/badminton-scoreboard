@@ -24,6 +24,7 @@
 
             <div class="player-grid">
                 <article class="player-card" id="player-a-card">
+                    <div class="serve-indicator" id="player-a-serve" aria-hidden="true"><span class="serve-dot"></span>Serving</div>
                     <h3 id="player-a-name"></h3>
                     <div class="player-metrics">
                         <p class="score-metric"><span class="metric-label">Points</span><strong id="player-a-score"></strong></p>
@@ -34,6 +35,7 @@
                 </article>
 
                 <article class="player-card" id="player-b-card">
+                    <div class="serve-indicator" id="player-b-serve" aria-hidden="true"><span class="serve-dot"></span>Serving</div>
                     <h3 id="player-b-name"></h3>
                     <div class="player-metrics">
                         <p class="score-metric"><span class="metric-label">Points</span><strong id="player-b-score"></strong></p>
@@ -45,7 +47,7 @@
             </div>
 
             <p id="add-error-message" role="alert"></p>
-            <p>Current Server: <span id="current-server"></span></p>
+            <p class="server-announcement">Current server: <strong id="current-server"></strong></p>
             <p id="undo-error-message" role="alert"></p>
             <button id="undo">Undo</button>
         </section>

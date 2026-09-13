@@ -13,6 +13,14 @@ function renderMatch(match) {
     document.getElementById('game-number').textContent = match.gameNumber;
     document.getElementById('current-server').textContent = match[match.currentServer].name;
 
+    const playerACard = document.getElementById('player-a-card');
+    const playerBCard = document.getElementById('player-b-card');
+    const playerAServing = match.currentServer === 'playerA';
+    playerACard.classList.toggle('is-serving', playerAServing);
+    playerBCard.classList.toggle('is-serving', !playerAServing);
+    document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!playerAServing));
+    document.getElementById('player-b-serve').setAttribute('aria-hidden', String(playerAServing));
+
     document.getElementById('player-a-point-status').textContent = match.pointStatus.playerA ?? '';
     document.getElementById('player-b-point-status').textContent = match.pointStatus.playerB ?? '';
 
