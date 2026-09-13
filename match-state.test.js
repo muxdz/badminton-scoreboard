@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { createMatch, scorePoint } = require('./match-state.js');
+const { createMatch, scorePoint, getPointStatus } = require('./match-state.js');
 
 function scorePoints(match, player, numberOfPoints) {
     let updatedMatch = match;
@@ -19,7 +19,7 @@ function scorePoints(match, player, numberOfPoints) {
     assert.equal(match.playerB.score, 0);
     assert.equal(match.playerA.gamesWon, 0);
     assert.equal(match.playerB.gamesWon, 0);
-    assert.deepEqual(match.completedGames, []);
+    assert.deepEqual(match.previousGames, []);
     assert.equal(match.currentServer, 'playerA');
     assert.equal(match.isMatchOver, false);
     assert.equal(match.winner, null);
@@ -33,7 +33,7 @@ function scorePoints(match, player, numberOfPoints) {
 
     const nextGame = scorePoint(match, 'playerB');
 
-    assert.deepEqual(nextGame.completedGames, [
+    assert.deepEqual(nextGame.previousGames, [
         { playerA: 19, playerB: 21, winner: 'playerB' }
     ]);
 }
@@ -44,7 +44,7 @@ function scorePoints(match, player, numberOfPoints) {
     match = scorePoints(match, 'playerA', 21);
     match = scorePoints(match, 'playerA', 21);
 
-    assert.equal(match.completedGames.length, 1);
+    assert.equal(match.previousGames.length, 1);
     assert.equal(match.playerA.score, 21);
     assert.equal(match.playerB.score, 0);
 }
@@ -158,5 +158,88 @@ function scorePoints(match, player, numberOfPoints) {
     );
 }
 
+// 19-19, neither has game point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 19;
+    match.playerB.score = 19;
+
+    assert.equal(getPointStatus(match, 'playerA'), null);
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
+
+// 20-19, playerA has game point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 20;
+    match.playerB.score = 19;
+
+    assert.equal(getPointStatus(match, 'playerA'), 'game-point');
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
+
+// 20-20, neither has game point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 20;
+    match.playerB.score = 20;
+
+    assert.equal(getPointStatus(match, 'playerA'), null);
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
+
+// 21-20, playerA has game point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 21;
+    match.playerB.score = 20;
+
+    assert.equal(getPointStatus(match, 'playerA'), 'game-point');
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
+
+// 29-29, both have game point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 29;
+    match.playerB.score = 29;
+
+    assert.equal(getPointStatus(match, 'playerA'), 'game-point');
+    assert.equal(getPointStatus(match, 'playerB'), 'game-point');
+}
+
+// One game won at 20-19, leading player has match point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 20;
+    match.playerB.score = 19;
+
+    match.playerA.gamesWon = 1;
+
+    assert.equal(getPointStatus(match, 'playerA'), 'match-point');
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
+
+// One game each at 29-29, both have match point
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 29;
+    match.playerB.score = 29;
+
+    match.playerA.gamesWon = 1;
+    match.playerB.gamesWon = 1;
+
+    assert.equal(getPointStatus(match, 'playerA'), 'match-point');
+    assert.equal(getPointStatus(match, 'playerB'), 'match-point');
+}
+
+// Completed match, neither player has a point status
+{
+    const match = createMatch('playerA', 'playerB');
+    match.isMatchOver = true;
+
+    assert.equal(getPointStatus(match, 'playerA'), null);
+    assert.equal(getPointStatus(match, 'playerB'), null);
+}
 
 console.log('All match state tests passed.');
