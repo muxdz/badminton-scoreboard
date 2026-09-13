@@ -21,6 +21,12 @@ function renderMatch(match) {
         document.getElementById('add-point-player-a').disabled = false;
         document.getElementById('add-point-player-b').disabled = false;
     }
+
+    if (match.canUndo) {
+        document.getElementById('undo-point').disabled = false;
+    } else {
+        document.getElementById('undo-point').disabled = true;
+    }
 }
 
 async function loadMatch() {
