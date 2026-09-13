@@ -26,6 +26,36 @@ function createMatch(playerAName, playerBName) {
     return matchStatus;
 }
 
+function hasWonGame(playerScore, opponentScore) {
+    if (playerScore === 30) {
+        return true;
+    }
+
+    return playerScore >= 21 && playerScore - opponentScore >= 2;
+}
+
+function getPointStatus(match, player) {
+    if (player !== 'playerA' && player !== 'playerB') {
+        throw new Error('This player is not valid');
+    }
+
+    if (match.isMatchOver) {
+        return null;
+    }
+
+    const opponent = player === 'playerA' ? 'playerB' : 'playerA';
+    const playerScore = match[player].score;
+    const opponentScore = match[opponent].score;
+
+    const playerWins = match[player].gamesWon;
+
+    if (hasWonGame(playerScore+1, opponentScore)) {
+        return playerWins === 1 ? 'match-point' : 'game-point';
+    } else {
+        return null;
+    }
+}
+
 function scorePoint(match, player) {
     if (player !== 'playerA' && player !== 'playerB') {
         throw new Error('This player is not valid');
@@ -49,10 +79,8 @@ function scorePoint(match, player) {
 
     const playerScore = updatedMatch[player].score;
     const opponentScore = updatedMatch[opponent].score;
-    const wonAtThirty = playerScore === 30;
-    const wonByTwo = playerScore >= 21 && playerScore - opponentScore >= 2;
 
-    if (wonAtThirty || wonByTwo) {
+    if (hasWonGame(playerScore, opponentScore)) {
         updatedMatch[player].gamesWon += 1;
 
         if (updatedMatch[player].gamesWon === 2) {
@@ -73,4 +101,4 @@ function scorePoint(match, player) {
     return updatedMatch;
 }
 
-module.exports = { createMatch, scorePoint };
+module.exports = { createMatch, scorePoint, getPointStatus };
