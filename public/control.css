@@ -94,6 +94,42 @@ button {
     white-space: nowrap;
 }
 
+.player-metrics {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    margin-top: 24px;
+}
+
+.player-metrics p {
+    display: grid;
+    gap: 6px;
+}
+
+.metric-label {
+    color: #aeb5bc;
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.player-metrics strong {
+    font-variant-numeric: tabular-nums;
+    line-height: 0.9;
+}
+
+.score-metric strong {
+    font-size: 6rem;
+    letter-spacing: -0.04em;
+}
+
+.games-metric strong {
+    color: #f1c86a;
+    font-size: 3rem;
+    letter-spacing: -0.03em;
+}
+
 .new-match-panel {
     margin-top: 24px;
 }
