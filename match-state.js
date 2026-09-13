@@ -16,6 +16,7 @@ function createMatch(playerAName, playerBName) {
     const matchStatus = {
         playerA,
         playerB,
+        completedGames: [],
         currentServer: 'playerA',
         currentReceiver: 'playerB',
         isMatchOver: false,
@@ -37,7 +38,8 @@ function scorePoint(match, player) {
     const updatedMatch = {
         ...match,
         playerA: { ...match.playerA },
-        playerB: { ...match.playerB }
+        playerB: { ...match.playerB },
+        completedGames: [...(match.completedGames || [])]
     };
     const opponent = player === 'playerA' ? 'playerB' : 'playerA';
 
@@ -57,6 +59,11 @@ function scorePoint(match, player) {
             updatedMatch.isMatchOver = true;
             updatedMatch.winner = player;
         } else {
+            updatedMatch.completedGames.push({
+                playerA: updatedMatch.playerA.score,
+                playerB: updatedMatch.playerB.score,
+                winner: player
+            });
             updatedMatch.gameNumber += 1;
             updatedMatch.playerA.score = 0;
             updatedMatch.playerB.score = 0;

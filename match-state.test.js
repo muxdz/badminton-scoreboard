@@ -19,9 +19,34 @@ function scorePoints(match, player, numberOfPoints) {
     assert.equal(match.playerB.score, 0);
     assert.equal(match.playerA.gamesWon, 0);
     assert.equal(match.playerB.gamesWon, 0);
+    assert.deepEqual(match.completedGames, []);
     assert.equal(match.currentServer, 'playerA');
     assert.equal(match.isMatchOver, false);
     assert.equal(match.winner, null);
+}
+
+// Completed game scores are retained when the next game begins.
+{
+    const match = createMatch('playerA', 'playerB');
+    match.playerA.score = 19;
+    match.playerB.score = 20;
+
+    const nextGame = scorePoint(match, 'playerB');
+
+    assert.deepEqual(nextGame.completedGames, [
+        { playerA: 19, playerB: 21, winner: 'playerB' }
+    ]);
+}
+
+// The deciding game stays live instead of being duplicated in history.
+{
+    let match = createMatch('playerA', 'playerB');
+    match = scorePoints(match, 'playerA', 21);
+    match = scorePoints(match, 'playerA', 21);
+
+    assert.equal(match.completedGames.length, 1);
+    assert.equal(match.playerA.score, 21);
+    assert.equal(match.playerB.score, 0);
 }
 
 // Scoring a point updates the player's score with a new match
