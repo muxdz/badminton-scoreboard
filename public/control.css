@@ -57,6 +57,26 @@ button {
     color: #aeb5bc;
 }
 
+.error-banner {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 12px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 160, 152, 0.45);
+    border-radius: 10px;
+    color: #ffd6d2;
+    background: #3a1e20;
+}
+
+.error-banner[hidden] {
+    display: none;
+}
+
+.error-banner strong {
+    color: #fff0ee;
+}
+
 .live-panel {
     padding: 24px;
     border-radius: 16px;
@@ -347,6 +367,11 @@ button {
 
 #create-match:hover {
     background: #ffda80;
+}
+
+#create-match:disabled {
+    cursor: wait;
+    opacity: 0.55;
 }
 
 ::selection {

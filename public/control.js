@@ -8,6 +8,26 @@ function setStatusBadge(player, status, isWinner) {
     badge.hidden = !label;
 }
 
+function showError(message) {
+    document.getElementById('control-error-message').textContent = message;
+    document.getElementById('control-error').hidden = false;
+}
+
+function clearError() {
+    document.getElementById('control-error-message').textContent = '';
+    document.getElementById('control-error').hidden = true;
+}
+
+async function readResponse(response) {
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Please try again.');
+    }
+
+    return data;
+}
+
 function renderMatch(match) {
     document.getElementById('player-a-name').textContent = match.playerA.name;
     document.getElementById('player-b-name').textContent = match.playerB.name;
@@ -46,28 +66,29 @@ function renderMatch(match) {
 }
 
 async function loadMatch() {
-    const response = await fetch('/api/match');
-    const match = await response.json();
-
-    renderMatch(match);
+    try {
+        const response = await fetch('/api/match');
+        const match = await readResponse(response);
+        clearError();
+        renderMatch(match);
+    } catch (error) {
+        showError(error.message || 'Could not load the match. Check the connection and refresh.');
+    }
 }
 
 loadMatch();
 
 async function addPoint(player) {
-    const response = await fetch(`/api/score/${player}`, {
-        method: 'POST'
-    });
-    const data = await response.json();
-    const errorMessage = document.getElementById('add-error-message');
-
-    if (!response.ok) {
-        errorMessage.textContent = data.error;
-        return;
+    try {
+        const response = await fetch(`/api/score/${player}`, {
+            method: 'POST'
+        });
+        const data = await readResponse(response);
+        clearError();
+        renderMatch(data);
+    } catch (error) {
+        showError(error.message || 'Could not add the point. Check the connection and try again.');
     }
-
-    errorMessage.textContent = '';
-    renderMatch(data);
 }
 
 document.getElementById('add-point-player-a')
@@ -76,45 +97,46 @@ document.getElementById('add-point-player-b')
     .addEventListener('click', () => addPoint('playerB'));
 
 async function undoPoint() {
-    const response = await fetch('/api/undo', {
-        method: 'POST'
-    });
-    const data = await response.json();
-    const errorMessage = document.getElementById('undo-error-message');
-
-    if (!response.ok) {
-        errorMessage.textContent = data.error;
-        return;
+    try {
+        const response = await fetch('/api/undo', {
+            method: 'POST'
+        });
+        const data = await readResponse(response);
+        clearError();
+        renderMatch(data);
+    } catch (error) {
+        showError(error.message || 'Could not undo the point. Check the connection and try again.');
     }
-
-    errorMessage.textContent = '';
-    renderMatch(data);
 }
 
 document.getElementById('undo')
     .addEventListener('click', () => undoPoint());
 
 async function createNewMatch(playerAName, playerBName) {
-    const response = await fetch('/api/match', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            playerAName,
-            playerBName
-        })
-    });
-    const data = await response.json();
-    const errorMessage = document.getElementById('create-error-message');
+    const createButton = document.getElementById('create-match');
+    createButton.disabled = true;
+    createButton.textContent = 'Creating…';
 
-    if (!response.ok) {
-        errorMessage.textContent = data.error;
-        return;
+    try {
+        const response = await fetch('/api/match', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                playerAName,
+                playerBName
+            })
+        });
+        const data = await readResponse(response);
+        clearError();
+        renderMatch(data);
+    } catch (error) {
+        showError(error.message || 'Could not create the match. Check both names and try again.');
+    } finally {
+        createButton.disabled = false;
+        createButton.textContent = 'Create match';
     }
-
-    errorMessage.textContent = '';
-    renderMatch(data);
 }
 
 document.getElementById('new-match-form')
@@ -128,5 +150,6 @@ document.getElementById('new-match-form')
 const socket = io();
 
 socket.on('matchUpdated', (match) => {
+    clearError();
     renderMatch(match);
 });

@@ -16,6 +16,11 @@
             <p>Match control</p>
         </header>
 
+        <div class="error-banner" id="control-error" role="alert" aria-live="assertive" hidden>
+            <strong>Action not completed</strong>
+            <span id="control-error-message"></span>
+        </div>
+
         <section class="live-panel" aria-labelledby="live-match-title">
             <div class="live-header">
                 <h2 id="live-match-title">Live match</h2>
@@ -46,7 +51,6 @@
                 </article>
             </div>
 
-            <p id="add-error-message" role="alert"></p>
             <div class="match-actions">
                 <p class="server-announcement">Current server: <strong id="current-server"></strong></p>
                 <button class="undo-button" id="undo" type="button">
@@ -54,7 +58,6 @@
                     Undo last point
                 </button>
             </div>
-            <p id="undo-error-message" role="alert"></p>
         </section>
 
         <section class="new-match-panel" aria-labelledby="new-match-title">
@@ -75,7 +78,6 @@
                 </label>
                 <button id="create-match" type="submit">Create match</button>
             </form>
-            <p id="create-error-message" role="alert"></p>
         </section>
     </main>
 </body>
