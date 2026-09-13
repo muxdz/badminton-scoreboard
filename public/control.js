@@ -30,9 +30,13 @@ async function readResponse(response) {
 
 function renderMatch(match) {
     document.getElementById('player-a-name').textContent = match.playerA.name;
+    document.getElementById('player-a-name').title = match.playerA.name;
     document.getElementById('player-b-name').textContent = match.playerB.name;
+    document.getElementById('player-b-name').title = match.playerB.name;
     document.getElementById('player-a-button-name').textContent = match.playerA.name;
     document.getElementById('player-b-button-name').textContent = match.playerB.name;
+    document.getElementById('add-point-player-a').setAttribute('aria-label', `Add one point to ${match.playerA.name}`);
+    document.getElementById('add-point-player-b').setAttribute('aria-label', `Add one point to ${match.playerB.name}`);
     
     document.getElementById('player-a-score').textContent = match.playerA.score;
     document.getElementById('player-b-score').textContent = match.playerB.score;
