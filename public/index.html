@@ -5,43 +5,54 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Badminton Scoreboard</title>
+    <link rel="stylesheet" href="/control.css">
     <script src="/socket.io/socket.io.js" defer></script>
     <script src="/control.js" defer></script>
 </head>
 <body>
-    <h1>Badminton Scoreboard</h1>
+    <main class="control-shell">
+        <header class="page-header">
+            <h1>Badminton Scoreboard</h1>
+            <p>Match control</p>
+        </header>
 
-    <section>
-        <h2>Create a new match</h2>
-        <input type="text" id="create-a-name" placeholder="Player A">
-        <input type="text" id="create-b-name" placeholder="Player B">
-        <p id="create-error-message" role="alert"></p>
-        <button id="create-match">Create Match</button>
-    </section>
+        <section class="live-panel" aria-labelledby="live-match-title">
+            <div class="live-header">
+                <h2 id="live-match-title">Live match</h2>
+                <p>Game <span id="game-number"></span></p>
+            </div>
 
+            <div class="player-grid">
+                <article class="player-card" id="player-a-card">
+                    <h3 id="player-a-name"></h3>
+                    <p>Score: <span id="player-a-score"></span></p>
+                    <p>Games Won: <span id="player-a-games-won"></span></p>
+                    <span id="player-a-point-status"></span>
+                    <button id="add-point-player-a">Add Point</button>
+                </article>
 
-    <section>
-        <h2 id="player-a-name"></h2>
-        <p>Score: <span id="player-a-score"></span></p>
-        <p>Games Won: <span id="player-a-games-won"></span></p>
-        <span id="player-a-point-status"></span>
-        <button id="add-point-player-a">Add Point</button>
-    </section>
+                <article class="player-card" id="player-b-card">
+                    <h3 id="player-b-name"></h3>
+                    <p>Score: <span id="player-b-score"></span></p>
+                    <p>Games Won: <span id="player-b-games-won"></span></p>
+                    <span id="player-b-point-status"></span>
+                    <button id="add-point-player-b">Add Point</button>
+                </article>
+            </div>
 
-    <section>
-        <h2 id="player-b-name"></h2>
-        <p>Score: <span id="player-b-score"></span></p>
-        <p>Games Won: <span id="player-b-games-won"></span></p>
-        <span id="player-b-point-status"></span>
-        <button id="add-point-player-b">Add Point</button>
-    </section>
+            <p id="add-error-message" role="alert"></p>
+            <p>Current Server: <span id="current-server"></span></p>
+            <p id="undo-error-message" role="alert"></p>
+            <button id="undo">Undo</button>
+        </section>
 
-    <p id="add-error-message" role="alert"></p>
-
-    <p>Game Number: <span id="game-number"></span></p>
-    <p>Current Server: <span id="current-server"></span></p>
-
-    <p id="undo-error-message" role="alert"></p>
-    <button id="undo">Undo</button>
+        <section class="new-match-panel">
+            <h2>Create a new match</h2>
+            <input type="text" id="create-a-name" placeholder="Player A">
+            <input type="text" id="create-b-name" placeholder="Player B">
+            <p id="create-error-message" role="alert"></p>
+            <button id="create-match">Create Match</button>
+        </section>
+    </main>
 </body>
 </html>
