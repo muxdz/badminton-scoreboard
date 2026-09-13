@@ -59,6 +59,12 @@ function renderMatch(match) {
     playerBServeElement.classList.toggle('is-serving', playerBServing);
     playerBServeElement.setAttribute('aria-hidden', String(!playerBServing));
 
+    const playerAPointStatus = document.getElementById('player-a-point-status');
+    const playerBPointStatus = document.getElementById('player-b-point-status');
+
+    playerAPointStatus.textContent = match.pointStatus.playerA ?? '';
+    playerBPointStatus.textContent = match.pointStatus.playerB ?? '';
+
     renderCompletedGames(match.previousGames || []);
 
     const winnerElement = document.getElementById('winning-player');
