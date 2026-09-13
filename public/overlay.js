@@ -59,7 +59,7 @@ function renderMatch(match) {
     playerBServeElement.classList.toggle('is-serving', playerBServing);
     playerBServeElement.setAttribute('aria-hidden', String(!playerBServing));
 
-    renderCompletedGames(match.completedGames || []);
+    renderCompletedGames(match.previousGames || []);
 
     const winnerElement = document.getElementById('winning-player');
     winnerElement.hidden = !match.isMatchOver;
