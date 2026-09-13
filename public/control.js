@@ -117,12 +117,13 @@ async function createNewMatch(playerAName, playerBName) {
     renderMatch(data);
 }
 
-document.getElementById('create-match')
-    .addEventListener('click', () => {
+document.getElementById('new-match-form')
+    .addEventListener('submit', (event) => {
+        event.preventDefault();
         const playerAName = document.getElementById('create-a-name').value;
         const playerBName = document.getElementById('create-b-name').value;
         createNewMatch(playerAName, playerBName);
-})
+    });
 
 const socket = io();
 

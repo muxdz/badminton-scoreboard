@@ -57,12 +57,25 @@
             <p id="undo-error-message" role="alert"></p>
         </section>
 
-        <section class="new-match-panel">
-            <h2>Create a new match</h2>
-            <input type="text" id="create-a-name" placeholder="Player A">
-            <input type="text" id="create-b-name" placeholder="Player B">
+        <section class="new-match-panel" aria-labelledby="new-match-title">
+            <div class="new-match-heading">
+                <div>
+                    <h2 id="new-match-title">Start a new match</h2>
+                    <p>This replaces the current match and clears its undo history.</p>
+                </div>
+            </div>
+            <form id="new-match-form">
+                <label>
+                    <span>Player A</span>
+                    <input type="text" id="create-a-name" name="playerAName" autocomplete="off" placeholder="Enter player name" required>
+                </label>
+                <label>
+                    <span>Player B</span>
+                    <input type="text" id="create-b-name" name="playerBName" autocomplete="off" placeholder="Enter player name" required>
+                </label>
+                <button id="create-match" type="submit">Create match</button>
+            </form>
             <p id="create-error-message" role="alert"></p>
-            <button id="create-match">Create Match</button>
         </section>
     </main>
 </body>

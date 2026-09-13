@@ -281,7 +281,72 @@ button {
 }
 
 .new-match-panel {
-    margin-top: 24px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.new-match-heading h2,
+.new-match-heading p {
+    margin: 0;
+}
+
+.new-match-heading h2 {
+    font-size: 1.25rem;
+}
+
+.new-match-heading p {
+    margin-top: 6px;
+    color: #aeb5bc;
+}
+
+#new-match-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+#new-match-form label {
+    display: grid;
+    gap: 8px;
+    color: #cdd2d6;
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+#new-match-form input {
+    width: 100%;
+    min-height: 50px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    color: #f7f3e9;
+    background: #171c21;
+    caret-color: #f1c86a;
+}
+
+#new-match-form input::placeholder {
+    color: #899199;
+}
+
+#new-match-form input:hover {
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+#create-match {
+    min-height: 50px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 10px;
+    color: #211b0d;
+    background: #f1c86a;
+    font-weight: 850;
+}
+
+#create-match:hover {
+    background: #ffda80;
 }
 
 ::selection {
