@@ -47,9 +47,14 @@
             </div>
 
             <p id="add-error-message" role="alert"></p>
-            <p class="server-announcement">Current server: <strong id="current-server"></strong></p>
+            <div class="match-actions">
+                <p class="server-announcement">Current server: <strong id="current-server"></strong></p>
+                <button class="undo-button" id="undo" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H5V4M5.5 8.5A8 8 0 1 1 4 14"/></svg>
+                    Undo last point
+                </button>
+            </div>
             <p id="undo-error-message" role="alert"></p>
-            <button id="undo">Undo</button>
         </section>
 
         <section class="new-match-panel">

@@ -171,12 +171,54 @@ button {
 }
 
 .server-announcement {
-    margin: 16px 0 0;
+    margin: 0;
     color: #aeb5bc;
 }
 
 .server-announcement strong {
     color: #f7f3e9;
+}
+
+.match-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.undo-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    color: #f7f3e9;
+    background: #22282f;
+    font-weight: 750;
+    transition: background-color 160ms ease-out, border-color 160ms ease-out;
+}
+
+.undo-button svg {
+    width: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.undo-button:hover:not(:disabled) {
+    border-color: rgba(255, 255, 255, 0.38);
+    background: #2c333b;
+}
+
+.undo-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
 }
 
 .player-metrics {

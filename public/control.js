@@ -42,11 +42,7 @@ function renderMatch(match) {
         document.getElementById('add-point-player-b').disabled = false;
     }
 
-    if (match.canUndo) {
-        document.getElementById('undo-point').disabled = false;
-    } else {
-        document.getElementById('undo-point').disabled = true;
-    }
+    document.getElementById('undo').disabled = !match.canUndo;
 }
 
 async function loadMatch() {
