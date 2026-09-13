@@ -1,12 +1,18 @@
 function renderMatch(match) {
     document.getElementById('player-a-name').textContent = match.playerA.name;
     document.getElementById('player-b-name').textContent = match.playerB.name;
+    
     document.getElementById('player-a-score').textContent = match.playerA.score;
     document.getElementById('player-b-score').textContent = match.playerB.score;
+    
     document.getElementById('player-a-games-won').textContent = match.playerA.gamesWon;
     document.getElementById('player-b-games-won').textContent = match.playerB.gamesWon;
+    
     document.getElementById('game-number').textContent = match.gameNumber;
     document.getElementById('current-server').textContent = match[match.currentServer].name;
+
+    document.getElementById('player-a-point-status').textContent = match.pointStatus.playerA ?? '';
+    document.getElementById('player-b-point-status').textContent = match.pointStatus.playerB ?? '';
 
     if (match.isMatchOver) {
         document.getElementById('add-point-player-a').disabled = true;
