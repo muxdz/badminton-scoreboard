@@ -19,7 +19,8 @@ function buildMatchPayload(match) {
         pointStatus: {
             playerA: getPointStatus(match, 'playerA'),
             playerB: getPointStatus(match, 'playerB')
-        }
+        },
+        canUndo: matchHistory.length > 0
     }
 }
 

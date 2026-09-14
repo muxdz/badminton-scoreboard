@@ -5,43 +5,80 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Badminton Scoreboard</title>
+    <link rel="stylesheet" href="/control.css">
     <script src="/socket.io/socket.io.js" defer></script>
     <script src="/control.js" defer></script>
 </head>
 <body>
-    <h1>Badminton Scoreboard</h1>
+    <main class="control-shell">
+        <header class="page-header">
+            <h1>Badminton Scoreboard</h1>
+            <p>Match control</p>
+        </header>
 
-    <section>
-        <h2>Create a new match</h2>
-        <input type="text" id="create-a-name" placeholder="Player A">
-        <input type="text" id="create-b-name" placeholder="Player B">
-        <p id="create-error-message" role="alert"></p>
-        <button id="create-match">Create Match</button>
-    </section>
+        <div class="error-banner" id="control-error" role="alert" aria-live="assertive" hidden>
+            <strong>Action not completed</strong>
+            <span id="control-error-message"></span>
+        </div>
 
+        <section class="live-panel" aria-labelledby="live-match-title">
+            <div class="live-header">
+                <h2 id="live-match-title">Live match</h2>
+                <p>Game <span id="game-number"></span></p>
+            </div>
 
-    <section>
-        <h2 id="player-a-name"></h2>
-        <p>Score: <span id="player-a-score"></span></p>
-        <p>Games Won: <span id="player-a-games-won"></span></p>
-        <span id="player-a-point-status"></span>
-        <button id="add-point-player-a">Add Point</button>
-    </section>
+            <div class="player-grid">
+                <article class="player-card" id="player-a-card">
+                    <div class="serve-indicator" id="player-a-serve" aria-hidden="true"><span class="serve-dot"></span>Serving</div>
+                    <h3 id="player-a-name"></h3>
+                    <div class="player-metrics">
+                        <p class="score-metric"><span class="metric-label">Points</span><strong id="player-a-score"></strong></p>
+                        <p class="games-metric"><span class="metric-label">Games won</span><strong id="player-a-games-won"></strong></p>
+                    </div>
+                    <div class="status-row"><span class="status-badge" id="player-a-point-status" hidden></span></div>
+                    <button class="score-button" id="add-point-player-a"><span aria-hidden="true">+1</span><span class="score-button-label">Point to <span id="player-a-button-name">Player A</span></span></button>
+                </article>
 
-    <section>
-        <h2 id="player-b-name"></h2>
-        <p>Score: <span id="player-b-score"></span></p>
-        <p>Games Won: <span id="player-b-games-won"></span></p>
-        <span id="player-b-point-status"></span>
-        <button id="add-point-player-b">Add Point</button>
-    </section>
+                <article class="player-card" id="player-b-card">
+                    <div class="serve-indicator" id="player-b-serve" aria-hidden="true"><span class="serve-dot"></span>Serving</div>
+                    <h3 id="player-b-name"></h3>
+                    <div class="player-metrics">
+                        <p class="score-metric"><span class="metric-label">Points</span><strong id="player-b-score"></strong></p>
+                        <p class="games-metric"><span class="metric-label">Games won</span><strong id="player-b-games-won"></strong></p>
+                    </div>
+                    <div class="status-row"><span class="status-badge" id="player-b-point-status" hidden></span></div>
+                    <button class="score-button" id="add-point-player-b"><span aria-hidden="true">+1</span><span class="score-button-label">Point to <span id="player-b-button-name">Player B</span></span></button>
+                </article>
+            </div>
 
-    <p id="add-error-message" role="alert"></p>
+            <div class="match-actions">
+                <p class="server-announcement">Current server: <strong id="current-server"></strong></p>
+                <button class="undo-button" id="undo" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8H5V4M5.5 8.5A8 8 0 1 1 4 14"/></svg>
+                    Undo last point
+                </button>
+            </div>
+        </section>
 
-    <p>Game Number: <span id="game-number"></span></p>
-    <p>Current Server: <span id="current-server"></span></p>
-
-    <p id="undo-error-message" role="alert"></p>
-    <button id="undo">Undo</button>
+        <section class="new-match-panel" aria-labelledby="new-match-title">
+            <div class="new-match-heading">
+                <div>
+                    <h2 id="new-match-title">Start a new match</h2>
+                    <p>This replaces the current match and clears its undo history.</p>
+                </div>
+            </div>
+            <form id="new-match-form">
+                <label>
+                    <span>Player A</span>
+                    <input type="text" id="create-a-name" name="playerAName" autocomplete="off" placeholder="Enter player name" required>
+                </label>
+                <label>
+                    <span>Player B</span>
+                    <input type="text" id="create-b-name" name="playerBName" autocomplete="off" placeholder="Enter player name" required>
+                </label>
+                <button id="create-match" type="submit">Create match</button>
+            </form>
+        </section>
+    </main>
 </body>
 </html>
