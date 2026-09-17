@@ -4,7 +4,7 @@
   "description": "",
   "main": "hello.js",
   "scripts": {
-    "test": "node match-state.test.js",
+    "test": "node match-state.test.js && node match-engine.test.js",
     "start": "node server.js"
   },
   "repository": {
