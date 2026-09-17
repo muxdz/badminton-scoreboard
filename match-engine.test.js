@@ -283,11 +283,11 @@ const { createMatch, scorePoint } = require('./match-engine.js');
 
     const newMatch = scorePoint(match, 'sideA');
     
-    assert.equal(newMatch.scoreA, 1);
-    assert.equal(newMatch.scoreB, 0);
+    assert.equal(newMatch.sides.sideA.score, 1);
+    assert.equal(newMatch.sides.sideB.score, 0);
 
-    assert.equal(match.scoreA, 0);
-    assert.equal(match.scoreB, 0);
+    assert.equal(match.sides.sideA.score, 0);
+    assert.equal(match.sides.sideB.score, 0);
 }
 
 // Singles receiver wins rally
@@ -302,12 +302,12 @@ const { createMatch, scorePoint } = require('./match-engine.js');
 
     const newMatch = scorePoint(match, 'sideB');
     
-    assert.equal(newMatch.scoreA, 0);
-    assert.equal(newMatch.scoreB, 1);
+    assert.equal(newMatch.sides.sideA.score, 0);
+    assert.equal(newMatch.sides.sideB.score, 1);
 
-    assert.equal(newMatch.servingSide, 'sideB');
-    assert.equal(newMatch.serverPlayerId, 'b1');
-    assert.equal(newMatch.receiverPlayerId, 'a1');
+    assert.equal(newMatch.service.servingSide, 'sideB');
+    assert.equal(newMatch.service.serverPlayerId, 'b1');
+    assert.equal(newMatch.service.receiverPlayerId, 'a1');
 }
 
 // Doubles serving side wins rally
@@ -322,12 +322,12 @@ const { createMatch, scorePoint } = require('./match-engine.js');
 
     const newMatch = scorePoint(match, 'sideA');
     
-    assert.equal(newMatch.scoreA, 1);
-    assert.equal(newMatch.scoreB, 0);
+    assert.equal(newMatch.sides.sideA.score, 1);
+    assert.equal(newMatch.sides.sideB.score, 0);
 
-    assert.equal(newMatch.servingSide, 'sideA');
-    assert.equal(newMatch.serverPlayerId, 'a1');
-    assert.equal(newMatch.receiverPlayerId, 'b2');
+    assert.equal(newMatch.service.servingSide, 'sideA');
+    assert.equal(newMatch.service.serverPlayerId, 'a1');
+    assert.equal(newMatch.service.receiverPlayerId, 'b2');
     
     assert.equal(newMatch.positions.sideA.leftPlayerId, 'a1');
     assert.equal(newMatch.positions.sideA.rightPlayerId, 'a2');
@@ -348,12 +348,12 @@ const { createMatch, scorePoint } = require('./match-engine.js');
 
     const newMatch = scorePoint(match, 'sideB');
     
-    assert.equal(newMatch.scoreA, 0);
-    assert.equal(newMatch.scoreB, 1);
+    assert.equal(newMatch.sides.sideA.score, 0);
+    assert.equal(newMatch.sides.sideB.score, 1);
 
-    assert.equal(newMatch.servingSide, 'sideB');
-    assert.equal(newMatch.serverPlayerId, 'b2');
-    assert.equal(newMatch.receiverPlayerId, 'a2');
+    assert.equal(newMatch.service.servingSide, 'sideB');
+    assert.equal(newMatch.service.serverPlayerId, 'b2');
+    assert.equal(newMatch.service.receiverPlayerId, 'a2');
 
     assert.equal(newMatch.positions.sideA.leftPlayerId, 'a1');
     assert.equal(newMatch.positions.sideA.rightPlayerId, 'a2');
