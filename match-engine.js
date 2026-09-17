@@ -43,14 +43,24 @@ function createMatch(config) {
         throw new Error('Players must have unique ids');
     }
 
+    const copiedSideAPlayers = sideAPlayers.map((player) => ({
+        id: player.id,
+        name: player.name.trim()
+    }));
+
+    const copiedSideBPlayers = sideBPlayers.map((player) => ({
+        id: player.id,
+        name: player.name.trim()
+    }));
+
     const sides = {
         sideA: {
-            players: sideAPlayers,
+            players: copiedSideAPlayers,
             score: 0,
             gamesWon: 0
         },
         sideB: {
-            players: sideBPlayers,
+            players: copiedSideBPlayers,
             score: 0,
             gamesWon: 0
         }
