@@ -11,6 +11,10 @@ function createMatch(config) {
         throw new Error('Match format must be "singles" or "doubles"');
     }
 
+    if (!Array.isArray(sideAPlayers) || !Array.isArray(sideBPlayers)) {
+        throw new Error('Players must be arrays');
+    }
+
     const requiredPlayers = format === 'singles' ? 1 : 2;
     if (format === 'singles') {
         if (sideAPlayers.length !== requiredPlayers || sideBPlayers.length !== requiredPlayers) {
@@ -69,8 +73,10 @@ function createMatch(config) {
     const servingSide = findPlayerSide(sides, startingServerId);
     const receivingSide = findPlayerSide(sides, startingReceiverId);
 
-    if (servingSide === null || receivingSide === null) {
-        throw new Error('Starting player must be on one of the sides');
+    if (servingSide === null) {
+        throw new Error('Unknown starting server player');
+    } else if (receivingSide === null) {
+        throw new Error('Unknown starting receiver player');
     } else if (servingSide === receivingSide) {
         throw new Error('Starting players must be on different sides');
     }
@@ -137,4 +143,59 @@ function createStartingPositions(players, rightPlayerId) {
     };
 }
 
-module.exports = { createMatch };
+function scorePoint(match, side) {
+    if (side !== 'sideA' && side !== 'sideB') {
+        throw new Error('Side entered is an invalid side');
+    }
+
+    if (match.isMatchOver) {
+        throw new Error('Match is already over');
+    }
+
+    const matchCopy = {
+        ...match
+    };
+
+    const otherSide = getOtherSide(side);
+    const winnerAlreadyServing = match.service.servingSide === side;
+
+    if (matchCopy.format === 'singles') {
+        matchCopy.sides[side].score += 1;
+
+        matchCopy.service.servingSide = side;
+        matchCopy.service.serverPlayerId = matchCopy.sides[otherSide].players[0].id;
+        matchCopy.service.receiverPlayerId = matchCopy.sides[side].players[0].id;
+    } else {
+        matchCopy.sides[side].score += 1;
+        
+        if (winnerAlreadyServing) {
+            const temp = matchCopy.positions[side].rightPlayerId;
+            matchCopy.positions[side].rightPlayerId = matchCopy.positions[side].leftPlayerId;
+            matchCopy.positions[side].leftPlayerId = temp;
+        }
+
+        matchCopy.service.servingSide = side;
+
+        const rightSide = matchCopy.positions[side].rightPlayerId;
+        const leftSide = matchCopy.positions[side].leftPlayerId;
+
+        const rightOtherSide = matchCopy.positions[otherSide].rightPlayerId;
+        const leftOtherSide = matchCopy.positions[otherSide].leftPlayerId;
+        
+        if (matchCopy.sides[side].score%2 === 0) {
+            matchCopy.service.serverPlayerId = rightSide;
+            matchCopy.service.receiverPlayerId = rightOtherSide;
+        } else {
+            matchCopy.service.serverPlayerId = leftSide;
+            matchCopy.service.receiverPlayerId = leftOtherSide;
+        }
+    }
+
+    return matchCopy;
+}
+
+function getOtherSide(side) {
+    return side === 'sideA' ? 'sideB' : 'sideA';
+}
+
+module.exports = { createMatch, scorePoint };
