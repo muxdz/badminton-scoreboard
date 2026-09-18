@@ -196,4 +196,12 @@ function getOtherSide(side) {
     return side === 'sideA' ? 'sideB' : 'sideA';
 }
 
-module.exports = { createMatch, scorePoint };
+function hasWonGame(playerScore, opponentScore) {
+    if (playerScore === 30) {
+        return true;
+    }
+
+    return playerScore >= 21 && playerScore - opponentScore >= 2;
+}
+
+module.exports = { createMatch, scorePoint, hasWonGame };

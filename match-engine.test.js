@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { createMatch, scorePoint } = require('./match-engine.js');
+const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
 
 /**
  * Tests for the match engine
@@ -443,5 +443,106 @@ const { createMatch, scorePoint } = require('./match-engine.js');
     assert.equal(newMatch3.service.serverPlayerId, 'a2');
     assert.equal(newMatch3.service.receiverPlayerId, 'b1');
 }
+
+/**
+ * Tests for game win detection
+ */
+
+// 20-19 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 21-19 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 21;
+    match.sides.sideB.score = 19;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
+// 21-20 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 21;
+    match.sides.sideB.score = 20;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 22-20 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 22;
+    match.sides.sideB.score = 20;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
+// 29-29 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 29;
+    match.sides.sideB.score = 29;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 30-29 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 30;
+    match.sides.sideB.score = 29;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
 
 console.log('All new match engine tests passed.');
