@@ -390,7 +390,7 @@ const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
         startingReceiverId: 'b1'
     });
 
-    match.status = 'completed';
+    match.status = 'complete';
 
     assert.throws(
         () => scorePoint(match, 'sideA'),
@@ -545,5 +545,75 @@ const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
     assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
 }
 
+/*
+ * Game transition testing
+ */
+
+// Side A wins a game
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const updatedMatch = scorePoint(match, 'sideA');
+
+    assert.equal(updatedMatch.sides.sideA.score, 0);
+    assert.equal(updatedMatch.sides.sideB.score, 0);
+    assert.equal(updatedMatch.sides.sideA.gamesWon, 1);
+    assert.equal(updatedMatch.sides.sideB.gamesWon, 0);
+
+    assert.equal(updatedMatch.status, 'between-games');
+    assert.equal(updatedMatch.nextGameServingSide, 'sideA');
+    assert.equal(updatedMatch.service, null); 
+    assert.equal(updatedMatch.positions, null);
+
+    assert.equal(updatedMatch.winnerSide, null);
+
+    assert.deepEqual(updatedMatch.previousGames, [{
+        gameNumber: 1,
+        sideAScore: 21,
+        sideBScore: 0,
+        winnerSide: 'sideA'
+    }])
+
+    assert.equal(updatedMatch.gameNumber, 2);
+    assert.equal(match.sides.sideA.score, 20);
+}
+
+// Side A wins the match
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.gamesWon = 1;
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 10;
+    match.gameNumber = 2;
+
+    const updatedMatch = scorePoint(match, 'sideA');
+
+    assert.equal(updatedMatch.sides.sideA.gamesWon, 2);
+    assert.equal(updatedMatch.status, 'complete');
+    assert.equal(updatedMatch.winnerSide, 'sideA');
+    
+    assert.equal(updatedMatch.gameNumber, 2);
+    assert.equal(updatedMatch.nextGameServingSide, null);
+    assert.notEqual(updatedMatch.service, null);
+    assert.notEqual(updatedMatch.positions, null);
+
+    assert.deepEqual(updatedMatch.previousGames, match.previousGames);
+}
 
 console.log('All new match engine tests passed.');

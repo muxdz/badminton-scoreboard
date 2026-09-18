@@ -117,7 +117,8 @@ function createMatch(config) {
         },
         previousGames: [],
         gameNumber: 1,
-        isMatchOver: false,
+        status: 'in-progress',
+        nextGameServingSide: null,
         winnerSide: null
     };
 }
@@ -144,12 +145,12 @@ function createStartingPositions(players, rightPlayerId) {
 }
 
 function scorePoint(match, side) {
-    if (side !== 'sideA' && side !== 'sideB') {
-        throw new Error('Side entered is an invalid side');
+    if (match.status !== 'in-progress') {
+        throw new Error('Match is not in progress');
     }
 
-    if (match.isMatchOver) {
-        throw new Error('Match is already over');
+    if (side !== 'sideA' && side !== 'sideB') {
+        throw new Error('Side entered is an invalid side');
     }
 
     const matchCopy = structuredClone(match);
@@ -189,6 +190,41 @@ function scorePoint(match, side) {
         }
     }
 
+    const hasWon = hasWonGame(
+        matchCopy.sides[side].score,
+        matchCopy.sides[otherSide].score
+    );
+
+    if (hasWon) {
+        matchCopy.sides[side].gamesWon += 1;
+
+        if (matchCopy.sides[side].gamesWon === 2) {
+            matchCopy.winnerSide = side;
+            matchCopy.status = 'complete';
+            matchCopy.nextGameServingSide = null;
+            return matchCopy;
+        }
+
+        const completedGame = {
+            gameNumber: matchCopy.gameNumber,
+            sideAScore: matchCopy.sides.sideA.score,
+            sideBScore: matchCopy.sides.sideB.score,
+            winnerSide: side
+        };
+
+        matchCopy.previousGames.push(completedGame);
+        
+        matchCopy.gameNumber += 1;
+        matchCopy.sides.sideA.score = 0;
+        matchCopy.sides.sideB.score = 0;
+        matchCopy.status = 'between-games';
+
+        matchCopy.nextGameServingSide = side;
+        matchCopy.service = null;
+        matchCopy.positions = null;
+
+    }
+
     return matchCopy;
 }
 
@@ -202,6 +238,78 @@ function hasWonGame(playerScore, opponentScore) {
     }
 
     return playerScore >= 21 && playerScore - opponentScore >= 2;
+}
+
+function startNewGame(match, {
+    startingServerId,
+    startingReceiverId
+}) {
+    if (match.status !== 'between-games') {
+        throw new Error('Match is not between games');
+    }
+
+    const allPlayers = [
+        ...match.sides.sideA.players,
+        ...match.sides.sideB.players
+    ];
+
+    if (!allPlayers.some((player) => player.id === startingServerId)) {
+        throw new Error('Starting server is not a player');
+    }
+
+    if (!allPlayers.some((player) => player.id === startingReceiverId)) {
+        throw new Error('Starting receiver is not a player');
+    }
+
+    const serverSide = findPlayerSide(match.sides, startingServerId);
+    const receiverSide = findPlayerSide(match.sides, startingReceiverId);
+
+    if (serverSide !== match.nextGameServingSide) {
+        throw new Error('Starting server is on the serving side');
+    } 
+    if (receiverSide !== getOtherSide(match.nextGameServingSide)) {
+        throw new Error('Starting receiver is not on the receiving side');
+    }
+    if (serverSide === receiverSide) {
+        throw new Error('Starting server and receiver must be on opposite sides');
+    }
+
+    const matchCopy = structuredClone(match);
+
+    const service = {
+        servingSide: serverSide,
+        serverPlayerId: startingServerId,
+        receiverPlayerId: startingReceiverId
+    };
+
+    let positions = null;
+
+    const sideARightPlayerId =
+        servingSide === 'sideA'
+            ? startingServerId
+            : startingReceiverId;
+
+    const sideBRightPlayerId =
+        servingSide === 'sideB'
+            ? startingServerId
+            : startingReceiverId;
+
+    if (format === 'doubles') {
+        positions = {
+            sideA: createStartingPositions(
+                sides.sideA.players,
+                sideARightPlayerId
+            ),
+            sideB: createStartingPositions(
+                sides.sideB.players,
+                sideBRightPlayerId
+            )
+        };
+    }
+
+    matchCopy.status = 'in-progress';
+    matchCopy.nextGameServingSide = null;
+
 }
 
 module.exports = { createMatch, scorePoint, hasWonGame };
