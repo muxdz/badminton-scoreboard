@@ -418,4 +418,30 @@ const { createMatch, scorePoint } = require('./match-engine.js');
     assert.notEqual(match.service, newMatch.service);
 }
 
+// Server and receiver doubles rotation
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    const newMatch = scorePoint(match, 'sideA');
+
+    assert.equal(newMatch.service.serverPlayerId, 'a1');
+    assert.equal(newMatch.service.receiverPlayerId, 'b2');
+
+    const newMatch2 = scorePoint(newMatch, 'sideB');
+
+    assert.equal(newMatch2.service.serverPlayerId, 'b2');
+    assert.equal(newMatch2.service.receiverPlayerId, 'a1');
+
+    const newMatch3 = scorePoint(newMatch2, 'sideA');
+
+    assert.equal(newMatch3.service.serverPlayerId, 'a2');
+    assert.equal(newMatch3.service.receiverPlayerId, 'b1');
+}
+
 console.log('All new match engine tests passed.');
