@@ -35,7 +35,8 @@ const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
     assert.equal(match.positions, null);
     assert.deepEqual(match.previousGames, []);
     assert.equal(match.gameNumber, 1);
-    assert.equal(match.isMatchOver, false);
+    assert.equal(match.status, 'in-progress');
+    assert.equal(match.nextGameServingSide, null);
     assert.equal(match.winnerSide, null);
 
 }
@@ -389,11 +390,11 @@ const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
         startingReceiverId: 'b1'
     });
 
-    match.isMatchOver = true;
+    match.status = 'completed';
 
     assert.throws(
         () => scorePoint(match, 'sideA'),
-        /match is already over/i
+        /not in progress/i
     )
 
 }
