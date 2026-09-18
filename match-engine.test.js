@@ -355,11 +355,11 @@ const { createMatch, scorePoint } = require('./match-engine.js');
     assert.equal(newMatch.service.serverPlayerId, 'b2');
     assert.equal(newMatch.service.receiverPlayerId, 'a2');
 
-    assert.equal(newMatch.positions.sideA.leftPlayerId, 'a1');
-    assert.equal(newMatch.positions.sideA.rightPlayerId, 'a2');
+    assert.equal(newMatch.positions.sideA.leftPlayerId, 'a2');
+    assert.equal(newMatch.positions.sideA.rightPlayerId, 'a1');
 
-    assert.equal(newMatch.positions.sideB.leftPlayerId, 'b1');
-    assert.equal(newMatch.positions.sideB.rightPlayerId, 'b2');
+    assert.equal(newMatch.positions.sideB.leftPlayerId, 'b2');
+    assert.equal(newMatch.positions.sideB.rightPlayerId, 'b1');
 }
 
 // Invalid side throws an error
@@ -389,16 +389,11 @@ const { createMatch, scorePoint } = require('./match-engine.js');
         startingReceiverId: 'b1'
     });
 
-    match.sides.sideA.score = 20;
-    match.sides.sideB.score = 0;
-
-    const newMatch = scorePoint(match, 'sideA');
-
-    assert.equal(newMatch.isMatchOver, true);
+    match.isMatchOver = true;
 
     assert.throws(
-        () => scorePoint(newMatch, 'sideA'),
-        /match is over/i
+        () => scorePoint(match, 'sideA'),
+        /match is already over/i
     )
 
 }

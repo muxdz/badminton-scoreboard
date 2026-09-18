@@ -152,9 +152,7 @@ function scorePoint(match, side) {
         throw new Error('Match is already over');
     }
 
-    const matchCopy = {
-        ...match
-    };
+    const matchCopy = structuredClone(match);
 
     const otherSide = getOtherSide(side);
     const winnerAlreadyServing = match.service.servingSide === side;
@@ -163,8 +161,8 @@ function scorePoint(match, side) {
         matchCopy.sides[side].score += 1;
 
         matchCopy.service.servingSide = side;
-        matchCopy.service.serverPlayerId = matchCopy.sides[otherSide].players[0].id;
-        matchCopy.service.receiverPlayerId = matchCopy.sides[side].players[0].id;
+        matchCopy.service.serverPlayerId = matchCopy.sides[side].players[0].id;
+        matchCopy.service.receiverPlayerId = matchCopy.sides[otherSide].players[0].id;
     } else {
         matchCopy.sides[side].score += 1;
         
