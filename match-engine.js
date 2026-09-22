@@ -316,4 +316,33 @@ function startNextGame(match, {
     return matchCopy;
 }
 
-module.exports = { createMatch, scorePoint, hasWonGame, startNextGame };
+function getPointStatus(match, side) {
+    if (match.status !== 'in-progress') {
+        return null;
+    }
+
+    if (side !== 'sideA' && side !== 'sideB') {
+        throw new Error('Side must be sideA or sideB');
+    }
+
+    if (hasWonGame(
+        match.sides[side].score+1, 
+        match.sides[getOtherSide(side)].score
+    )) {
+        if (match.sides[side].gamesWon === 1) {
+            return 'match-point';
+        } else {
+            return 'game-point';
+        }
+    }
+
+    return null;
+}
+
+module.exports = { 
+    createMatch, 
+    scorePoint, 
+    hasWonGame, 
+    startNextGame,
+    getPointStatus 
+};
