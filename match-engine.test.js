@@ -1,5 +1,10 @@
 const assert = require('node:assert/strict');
-const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
+const { 
+    createMatch, 
+    scorePoint, 
+    hasWonGame, 
+    startNextGame 
+} = require('./match-engine.js');
 
 /**
  * Tests for the match engine
@@ -614,6 +619,48 @@ const { createMatch, scorePoint, hasWonGame } = require('./match-engine.js');
     assert.notEqual(updatedMatch.positions, null);
 
     assert.deepEqual(updatedMatch.previousGames, match.previousGames);
+
+    assert.equal(updatedMatch.sides.sideA.score, 21);
+    assert.equal(updatedMatch.sides.sideB.score, 10);
+}
+
+// Tests for between games data
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.nextGameServingSide, 'sideA');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+    const gameTwo = startNextGame(betweenGames, {
+        startingServerId: 'a2',
+        startingReceiverId: 'b2'
+    });
+
+    assert.equal(gameTwo.status, 'in-progress');
+    assert.equal(gameTwo.nextGameServingSide, null);
+
+    assert.equal(gameTwo.service.servingSide, 'sideA');
+    assert.equal(gameTwo.service.serverPlayerId, 'a2');
+    assert.equal(gameTwo.service.receiverPlayerId, 'b2');
+
+    assert.equal(gameTwo.positions.sideA.rightPlayerId, 'a2');
+    assert.equal(gameTwo.positions.sideA.leftPlayerId, 'a1');
+    assert.equal(gameTwo.positions.sideB.rightPlayerId, 'b2');
+    assert.equal(gameTwo.positions.sideB.leftPlayerId, 'b1');
+
 }
 
 console.log('All new match engine tests passed.');

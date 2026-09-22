@@ -240,7 +240,7 @@ function hasWonGame(playerScore, opponentScore) {
     return playerScore >= 21 && playerScore - opponentScore >= 2;
 }
 
-function startNewGame(match, {
+function startNextGame(match, {
     startingServerId,
     startingReceiverId
 }) {
@@ -285,23 +285,23 @@ function startNewGame(match, {
     let positions = null;
 
     const sideARightPlayerId =
-        servingSide === 'sideA'
+        serverSide === 'sideA'
             ? startingServerId
             : startingReceiverId;
 
     const sideBRightPlayerId =
-        servingSide === 'sideB'
+        serverSide === 'sideB'
             ? startingServerId
             : startingReceiverId;
 
-    if (format === 'doubles') {
+    if (matchCopy.format === 'doubles') {
         positions = {
             sideA: createStartingPositions(
-                sides.sideA.players,
+                matchCopy.sides.sideA.players,
                 sideARightPlayerId
             ),
             sideB: createStartingPositions(
-                sides.sideB.players,
+                matchCopy.sides.sideB.players,
                 sideBRightPlayerId
             )
         };
@@ -309,7 +309,11 @@ function startNewGame(match, {
 
     matchCopy.status = 'in-progress';
     matchCopy.nextGameServingSide = null;
+    
+    matchCopy.service = service;
+    matchCopy.positions = positions;
 
+    return matchCopy;
 }
 
-module.exports = { createMatch, scorePoint, hasWonGame };
+module.exports = { createMatch, scorePoint, hasWonGame, startNextGame };
