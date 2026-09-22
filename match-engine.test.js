@@ -1,5 +1,10 @@
 const assert = require('node:assert/strict');
-const { createMatch, scorePoint } = require('./match-engine.js');
+const { 
+    createMatch, 
+    scorePoint, 
+    hasWonGame, 
+    startNextGame 
+} = require('./match-engine.js');
 
 /**
  * Tests for the match engine
@@ -35,7 +40,8 @@ const { createMatch, scorePoint } = require('./match-engine.js');
     assert.equal(match.positions, null);
     assert.deepEqual(match.previousGames, []);
     assert.equal(match.gameNumber, 1);
-    assert.equal(match.isMatchOver, false);
+    assert.equal(match.status, 'in-progress');
+    assert.equal(match.nextGameServingSide, null);
     assert.equal(match.winnerSide, null);
 
 }
@@ -389,11 +395,11 @@ const { createMatch, scorePoint } = require('./match-engine.js');
         startingReceiverId: 'b1'
     });
 
-    match.isMatchOver = true;
+    match.status = 'complete';
 
     assert.throws(
         () => scorePoint(match, 'sideA'),
-        /match is already over/i
+        /not in progress/i
     )
 
 }
@@ -418,4 +424,368 @@ const { createMatch, scorePoint } = require('./match-engine.js');
     assert.notEqual(match.service, newMatch.service);
 }
 
+// Server and receiver doubles rotation
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    const newMatch = scorePoint(match, 'sideA');
+
+    assert.equal(newMatch.service.serverPlayerId, 'a1');
+    assert.equal(newMatch.service.receiverPlayerId, 'b2');
+
+    const newMatch2 = scorePoint(newMatch, 'sideB');
+
+    assert.equal(newMatch2.service.serverPlayerId, 'b2');
+    assert.equal(newMatch2.service.receiverPlayerId, 'a1');
+
+    const newMatch3 = scorePoint(newMatch2, 'sideA');
+
+    assert.equal(newMatch3.service.serverPlayerId, 'a2');
+    assert.equal(newMatch3.service.receiverPlayerId, 'b1');
+}
+
+/**
+ * Tests for game win detection
+ */
+
+// 20-19 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 21-19 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 21;
+    match.sides.sideB.score = 19;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
+// 21-20 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 21;
+    match.sides.sideB.score = 20;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 22-20 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 22;
+    match.sides.sideB.score = 20;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
+// 29-29 has not won yet
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 29;
+    match.sides.sideB.score = 29;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), false);
+}
+
+// 30-29 has won
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 30;
+    match.sides.sideB.score = 29;
+
+    assert.equal(hasWonGame(match.sides.sideA.score, match.sides.sideB.score), true);
+}
+
+/*
+ * Game transition testing
+ */
+
+// Side A wins a game
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const updatedMatch = scorePoint(match, 'sideA');
+
+    assert.equal(updatedMatch.sides.sideA.score, 0);
+    assert.equal(updatedMatch.sides.sideB.score, 0);
+    assert.equal(updatedMatch.sides.sideA.gamesWon, 1);
+    assert.equal(updatedMatch.sides.sideB.gamesWon, 0);
+
+    assert.equal(updatedMatch.status, 'between-games');
+    assert.equal(updatedMatch.nextGameServingSide, 'sideA');
+    assert.equal(updatedMatch.service, null); 
+    assert.equal(updatedMatch.positions, null);
+
+    assert.equal(updatedMatch.winnerSide, null);
+
+    assert.deepEqual(updatedMatch.previousGames, [{
+        gameNumber: 1,
+        sideAScore: 21,
+        sideBScore: 0,
+        winnerSide: 'sideA'
+    }])
+
+    assert.equal(updatedMatch.gameNumber, 2);
+    assert.equal(match.sides.sideA.score, 20);
+}
+
+// Side A wins the match
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.gamesWon = 1;
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 10;
+    match.gameNumber = 2;
+
+    const updatedMatch = scorePoint(match, 'sideA');
+
+    assert.equal(updatedMatch.sides.sideA.gamesWon, 2);
+    assert.equal(updatedMatch.status, 'complete');
+    assert.equal(updatedMatch.winnerSide, 'sideA');
+    
+    assert.equal(updatedMatch.gameNumber, 2);
+    assert.equal(updatedMatch.nextGameServingSide, null);
+    assert.notEqual(updatedMatch.service, null);
+    assert.notEqual(updatedMatch.positions, null);
+
+    assert.deepEqual(updatedMatch.previousGames, match.previousGames);
+
+    assert.equal(updatedMatch.sides.sideA.score, 21);
+    assert.equal(updatedMatch.sides.sideB.score, 10);
+}
+
+// Tests for between games data
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.nextGameServingSide, 'sideA');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+    const gameTwo = startNextGame(betweenGames, {
+        startingServerId: 'a2',
+        startingReceiverId: 'b2'
+    });
+
+    assert.equal(gameTwo.status, 'in-progress');
+    assert.equal(gameTwo.nextGameServingSide, null);
+
+    assert.equal(gameTwo.service.servingSide, 'sideA');
+    assert.equal(gameTwo.service.serverPlayerId, 'a2');
+    assert.equal(gameTwo.service.receiverPlayerId, 'b2');
+
+    assert.equal(gameTwo.positions.sideA.rightPlayerId, 'a2');
+    assert.equal(gameTwo.positions.sideA.leftPlayerId, 'a1');
+    assert.equal(gameTwo.positions.sideB.rightPlayerId, 'b2');
+    assert.equal(gameTwo.positions.sideB.leftPlayerId, 'b1');
+
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+}
+
+// Calling startNextGame whilst 'in-progress' throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    assert.throws(() => startNextGame(match, {
+        startingServerId: 'a2',
+        startingReceiverId: 'b2'
+    }), /not between games/i);
+}
+
+// Unknown server ID throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'c1',
+        startingReceiverId: 'b1'
+    }), /server is not a player/i);
+}
+
+// Unknown receiver ID throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'a1',
+        startingReceiverId: 'c1'
+    }), /receiver is not a player/i);
+}
+
+// Side A wins but selects player b server
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'b1',
+        startingReceiverId: 'a1'
+    }), /next serving side/i);
+}
+
+// startNextGame works as expected for singles
+{
+    const match = createMatch({
+        format: 'singles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideB.score = 20;
+
+    const betweenGames = scorePoint(match, 'sideB');
+
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.nextGameServingSide, 'sideB');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+    const game2 = startNextGame(betweenGames, {
+        startingServerId: 'b1',
+        startingReceiverId: 'a1'
+    });
+
+    assert.equal(game2.status, 'in-progress');
+    assert.equal(game2.nextGameServingSide, null);
+    assert.equal(game2.service.servingSide, 'sideB');
+    assert.equal(game2.service.serverPlayerId, 'b1');
+    assert.equal(game2.service.receiverPlayerId, 'a1');
+    assert.equal(game2.positions, null)
+    assert.equal(game2.sides.sideA.score, 0);
+    assert.equal(game2.sides.sideB.score, 0);
+    assert.equal(game2.sides.sideA.gamesWon, 0);
+    assert.equal(game2.sides.sideB.gamesWon, 1);
+
+    assert.deepEqual(game2.previousGames, [{
+        gameNumber: 1,
+        sideAScore: 0,
+        sideBScore: 21,
+        winnerSide: 'sideB'
+    }]);
+}
 console.log('All new match engine tests passed.');
