@@ -265,7 +265,7 @@ function startNextGame(match, {
     const receiverSide = findPlayerSide(match.sides, startingReceiverId);
 
     if (serverSide !== match.nextGameServingSide) {
-        throw new Error('Starting server is on the serving side');
+        throw new Error('Starting server must belong to the next serving side');
     } 
     if (receiverSide !== getOtherSide(match.nextGameServingSide)) {
         throw new Error('Starting receiver is not on the receiving side');

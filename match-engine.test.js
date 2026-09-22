@@ -661,6 +661,89 @@ const {
     assert.equal(gameTwo.positions.sideB.rightPlayerId, 'b2');
     assert.equal(gameTwo.positions.sideB.leftPlayerId, 'b1');
 
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+}
+
+// Calling startNewGame whilst 'in-progress' throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    assert.throws(() => startNextGame(match, {
+        startingServerId: 'a2',
+        startingReceiverId: 'b2'
+    }), /not between games/i);
+}
+
+// Unknown server ID throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'c1',
+        startingReceiverId: 'b1'
+    }), /server is not a player/i);
+}
+
+// Unknown receiver ID throws error
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 0;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'a1',
+        startingReceiverId: 'c1'
+    }), /receiver is not a player/i);
+}
+
+// Side A wins but selects player b server
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.throws(() => startNextGame(betweenGames, {
+        startingServerId: 'b1',
+        startingReceiverId: 'a1'
+    }), /next serving side/i);
 }
 
 console.log('All new match engine tests passed.');
