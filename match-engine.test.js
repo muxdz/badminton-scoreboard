@@ -667,7 +667,7 @@ const {
 
 }
 
-// Calling startNewGame whilst 'in-progress' throws error
+// Calling startNextGame whilst 'in-progress' throws error
 {
     const match = createMatch({
         format: 'doubles',
@@ -746,4 +746,46 @@ const {
     }), /next serving side/i);
 }
 
+// startNextGame works as expected for singles
+{
+    const match = createMatch({
+        format: 'singles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideB.score = 20;
+
+    const betweenGames = scorePoint(match, 'sideB');
+
+    assert.equal(betweenGames.status, 'between-games');
+    assert.equal(betweenGames.nextGameServingSide, 'sideB');
+    assert.equal(betweenGames.service, null);
+    assert.equal(betweenGames.positions, null);
+
+    const game2 = startNextGame(betweenGames, {
+        startingServerId: 'b1',
+        startingReceiverId: 'a1'
+    });
+
+    assert.equal(game2.status, 'in-progress');
+    assert.equal(game2.nextGameServingSide, null);
+    assert.equal(game2.service.servingSide, 'sideB');
+    assert.equal(game2.service.serverPlayerId, 'b1');
+    assert.equal(game2.service.receiverPlayerId, 'a1');
+    assert.equal(game2.positions, null)
+    assert.equal(game2.sides.sideA.score, 0);
+    assert.equal(game2.sides.sideB.score, 0);
+    assert.equal(game2.sides.sideA.gamesWon, 0);
+    assert.equal(game2.sides.sideB.gamesWon, 1);
+
+    assert.deepEqual(game2.previousGames, [{
+        gameNumber: 1,
+        sideAScore: 0,
+        sideBScore: 21,
+        winnerSide: 'sideB'
+    }]);
+}
 console.log('All new match engine tests passed.');
