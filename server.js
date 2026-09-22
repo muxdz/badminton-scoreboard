@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const { createMatch, scorePoint, getPointStatus } = require('./match-state.js');
+const { createMatch, scorePoint, getPointStatus } = require('./match-engine.js');
 const { Server } = require('socket.io');
 
 const app = express();
@@ -10,15 +10,21 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server);
 
-let currentMatch = createMatch('playerA', 'playerB');
+let currentMatch = createMatch({
+        format: 'singles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }],
+        sideBPlayers: [{ id: 'b1', name: 'Bob' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
 let matchHistory = [];
 
 function buildMatchPayload(match) {
     return {
         ...match,
         pointStatus: {
-            playerA: getPointStatus(match, 'playerA'),
-            playerB: getPointStatus(match, 'playerB')
+            sideA: getPointStatus(match, 'sideA'),
+            sideB: getPointStatus(match, 'sideB')
         },
         canUndo: matchHistory.length > 0
     }
