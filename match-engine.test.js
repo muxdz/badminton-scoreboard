@@ -3,7 +3,8 @@ const {
     createMatch, 
     scorePoint, 
     hasWonGame, 
-    startNextGame 
+    startNextGame,
+    getPointStatus 
 } = require('./match-engine.js');
 
 /**
@@ -788,4 +789,146 @@ const {
         winnerSide: 'sideB'
     }]);
 }
+
+/*
+ * getPointStatus testing
+ */
+
+// 19-19, no point status
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 19;
+    match.sides.sideB.score = 19;
+
+    assert.equal(getPointStatus(match, 'sideA'), null);
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// 20-19, leading side has 'game-point'
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+
+    assert.equal(getPointStatus(match, 'sideA'), 'game-point');
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// 20-20, no point status
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 20;
+
+    assert.equal(getPointStatus(match, 'sideA'), null);
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// 21-20, leading side has 'game-point'
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 21;
+    match.sides.sideB.score = 20;
+
+    assert.equal(getPointStatus(match, 'sideA'), 'game-point');
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// Side with one game won at 20-19, leading side has 'match-point'
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+    match.sides.sideA.gamesWon = 1;
+
+    assert.equal(getPointStatus(match, 'sideA'), 'match-point');
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// Between Games has no point status
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.sides.sideA.score = 20;
+    match.sides.sideB.score = 19;
+    
+    const betweenGames = scorePoint(match, 'sideA');
+
+    assert.equal(getPointStatus(betweenGames, 'sideA'), null);
+    assert.equal(getPointStatus(betweenGames, 'sideB'), null);
+}
+
+// Completed match has no point status
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    match.status = 'complete';
+
+    assert.equal(getPointStatus(match, 'sideA'), null);
+    assert.equal(getPointStatus(match, 'sideB'), null);
+}
+
+// Invalid side has no point status
+{
+    const match = createMatch({
+        format: 'doubles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }, { id: 'a2', name: 'Alyssa' }],
+        sideBPlayers: [{ id: 'b1', name: 'Beth' }, { id: 'b2', name: 'Betsy' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
+
+    assert.throws(
+        () => getPointStatus(match, 'sideC'),
+        /must be sideA or sideB/i
+    );
+}
+
 console.log('All new match engine tests passed.');
