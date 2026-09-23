@@ -29,42 +29,61 @@ async function readResponse(response) {
 }
 
 function renderMatch(match) {
-    document.getElementById('player-a-name').textContent = match.playerA.name;
-    document.getElementById('player-a-name').title = match.playerA.name;
-    document.getElementById('player-b-name').textContent = match.playerB.name;
-    document.getElementById('player-b-name').title = match.playerB.name;
-    document.getElementById('player-a-button-name').textContent = match.playerA.name;
-    document.getElementById('player-b-button-name').textContent = match.playerB.name;
-    document.getElementById('add-point-player-a').setAttribute('aria-label', `Add one point to ${match.playerA.name}`);
-    document.getElementById('add-point-player-b').setAttribute('aria-label', `Add one point to ${match.playerB.name}`);
+    const sideAName = match.sides.sideA.players
+        .map((player) => player.name)
+        .join(' / ');
+
+    const sideBName = match.sides.sideB.players
+        .map((player) => player.name)
+        .join(' / ');
+
+    const allPlayers = [
+        ...match.sides.sideA.players,
+        ...match.sides.sideB.players
+    ];
+
+    const currentServer = allPlayers.find(
+        (player) => player.id === match.service?.serverPlayerId
+    );
+
+    document.getElementById('current-server').textContent =
+        currentServer?.name ?? 'Awaiting next game';
+
+    document.getElementById('player-a-name').textContent = sideAName;
+    document.getElementById('player-a-name').title = sideAName;
+    document.getElementById('player-b-name').textContent = sideBName;
+    document.getElementById('player-b-name').title = sideBName;
+    document.getElementById('player-a-button-name').textContent = sideAName;
+    document.getElementById('player-b-button-name').textContent = sideBName;
+    document.getElementById('add-point-player-a').setAttribute('aria-label', `Add one point to ${sideAName}`);
+    document.getElementById('add-point-player-b').setAttribute('aria-label', `Add one point to ${sideBName}`);
     
-    document.getElementById('player-a-score').textContent = match.playerA.score;
-    document.getElementById('player-b-score').textContent = match.playerB.score;
+    document.getElementById('player-a-score').textContent = match.sides.sideA.score;
+    document.getElementById('player-b-score').textContent = match.sides.sideB.score;
     
-    document.getElementById('player-a-games-won').textContent = match.playerA.gamesWon;
-    document.getElementById('player-b-games-won').textContent = match.playerB.gamesWon;
+    document.getElementById('player-a-games-won').textContent = match.sides.sideA.gamesWon;
+    document.getElementById('player-b-games-won').textContent = match.sides.sideB.gamesWon;
     
     document.getElementById('game-number').textContent = match.gameNumber;
-    document.getElementById('current-server').textContent = match[match.currentServer].name;
-
+    
     const playerACard = document.getElementById('player-a-card');
     const playerBCard = document.getElementById('player-b-card');
-    const playerAServing = match.currentServer === 'playerA';
-    playerACard.classList.toggle('is-serving', playerAServing);
-    playerBCard.classList.toggle('is-serving', !playerAServing);
-    document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!playerAServing));
-    document.getElementById('player-b-serve').setAttribute('aria-hidden', String(playerAServing));
+    const sideAServing = match.service?.servingSide === 'sideA';
+    const sideBServing = match.service?.servingSide === 'sideB';
 
-    setStatusBadge('player-a', match.pointStatus.playerA, match.winner === 'playerA');
-    setStatusBadge('player-b', match.pointStatus.playerB, match.winner === 'playerB');
+    playerACard.classList.toggle('is-serving', sideAServing);
+    playerBCard.classList.toggle('is-serving', sideBServing);
 
-    if (match.isMatchOver) {
-        document.getElementById('add-point-player-a').disabled = true;
-        document.getElementById('add-point-player-b').disabled = true;
-    } else {
-        document.getElementById('add-point-player-a').disabled = false;
-        document.getElementById('add-point-player-b').disabled = false;
-    }
+    document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!sideBServing));
+    document.getElementById('player-b-serve').setAttribute('aria-hidden', String(!sideAServing));
+
+    setStatusBadge('player-a', match.pointStatus.sideA, match.winnerSide === 'sideA');
+    setStatusBadge('player-b', match.pointStatus.sideB, match.winnerSide === 'sideB');
+
+    const scoringDisabled = match.status !== 'in-progress';
+
+    document.getElementById('add-point-player-a').disabled = scoringDisabled;
+    document.getElementById('add-point-player-b').disabled = scoringDisabled;
 
     document.getElementById('undo').disabled = !match.canUndo;
 }
@@ -96,9 +115,9 @@ async function addPoint(player) {
 }
 
 document.getElementById('add-point-player-a')
-    .addEventListener('click', () => addPoint('playerA'));
+    .addEventListener('click', () => addPoint('sideA'));
 document.getElementById('add-point-player-b')
-    .addEventListener('click', () => addPoint('playerB'));
+    .addEventListener('click', () => addPoint('sideB'));
 
 async function undoPoint() {
     try {
@@ -128,8 +147,11 @@ async function createNewMatch(playerAName, playerBName) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                playerAName,
-                playerBName
+                format: 'singles',
+                sideAPlayers: [{ id: 'a1', name: playerAName }],
+                sideBPlayers: [{ id: 'b1', name: playerBName }],
+                startingServerId: 'a1',
+                startingReceiverId: 'b1'
             })
         });
         const data = await readResponse(response);
@@ -148,7 +170,13 @@ document.getElementById('new-match-form')
         event.preventDefault();
         const playerAName = document.getElementById('create-a-name').value;
         const playerBName = document.getElementById('create-b-name').value;
-        createNewMatch(playerAName, playerBName);
+        createNewMatch({
+            format: 'singles',
+            sideAPlayers: [{ id: 'a1', name: playerAName }],
+            sideBPlayers: [{ id: 'b1', name: playerBName }],
+            startingServerId: 'a1',
+            startingReceiverId: 'b1'
+        });
     });
 
 const socket = io();
