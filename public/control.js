@@ -74,8 +74,8 @@ function renderMatch(match) {
     playerACard.classList.toggle('is-serving', sideAServing);
     playerBCard.classList.toggle('is-serving', sideBServing);
 
-    document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!sideBServing));
-    document.getElementById('player-b-serve').setAttribute('aria-hidden', String(!sideAServing));
+    document.getElementById('player-a-serve').setAttribute('aria-hidden', String(!sideAServing));
+    document.getElementById('player-b-serve').setAttribute('aria-hidden', String(!sideBServing));
 
     setStatusBadge('player-a', match.pointStatus.sideA, match.winnerSide === 'sideA');
     setStatusBadge('player-b', match.pointStatus.sideB, match.winnerSide === 'sideB');
@@ -135,7 +135,7 @@ async function undoPoint() {
 document.getElementById('undo')
     .addEventListener('click', () => undoPoint());
 
-async function createNewMatch(playerAName, playerBName) {
+async function createNewMatch(matchConfig) {
     const createButton = document.getElementById('create-match');
     createButton.disabled = true;
     createButton.textContent = 'Creating…';
@@ -146,13 +146,7 @@ async function createNewMatch(playerAName, playerBName) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                format: 'singles',
-                sideAPlayers: [{ id: 'a1', name: playerAName }],
-                sideBPlayers: [{ id: 'b1', name: playerBName }],
-                startingServerId: 'a1',
-                startingReceiverId: 'b1'
-            })
+            body: JSON.stringify(matchConfig)
         });
         const data = await readResponse(response);
         clearError();
@@ -168,16 +162,51 @@ async function createNewMatch(playerAName, playerBName) {
 document.getElementById('new-match-form')
     .addEventListener('submit', (event) => {
         event.preventDefault();
-        const playerAName = document.getElementById('create-a-name').value;
-        const playerBName = document.getElementById('create-b-name').value;
-        createNewMatch({
-            format: 'singles',
-            sideAPlayers: [{ id: 'a1', name: playerAName }],
-            sideBPlayers: [{ id: 'b1', name: playerBName }],
-            startingServerId: 'a1',
-            startingReceiverId: 'b1'
-        });
+
+        const format = document.getElementById('match-type').value;
+
+        if (format === 'singles') {
+            const sideAPlayer1 = document.getElementById('create-a1-name').value;
+            const sideBPlayer1 = document.getElementById('create-b1-name').value;
+            createNewMatch({
+                format: 'singles',
+                sideAPlayers: [{ id: 'a1', name: sideAPlayer1 }],
+                sideBPlayers: [{ id: 'b1', name: sideBPlayer1 }],
+                startingServerId: 'a1',
+                startingReceiverId: 'b1'
+            });
+        } else if (format === 'doubles') {
+            const sideAPlayer1 = document.getElementById('create-a1-name').value;
+            const sideAPlayer2 = document.getElementById('create-a2-name').value;
+            const sideBPlayer1 = document.getElementById('create-b1-name').value;
+            const sideBPlayer2 = document.getElementById('create-b2-name').value;
+            createNewMatch({
+                format: 'doubles',
+                sideAPlayers: [{ id: 'a1', name: sideAPlayer1 }, { id: 'a2', name: sideAPlayer2 }],
+                sideBPlayers: [{ id: 'b1', name: sideBPlayer1 }, { id: 'b2', name: sideBPlayer2 }],
+                startingServerId: 'a1',
+                startingReceiverId: 'b1'
+            });
+        }
     });
+
+function updatePlayerInputs() {
+    const isSingles = document.getElementById('match-type').value === 'singles';
+
+    sideAPlayer2Input.hidden = isSingles;
+    sideBPlayer2Input.hidden = isSingles;
+
+    sideAPlayer2Input.disabled = isSingles;
+    sideBPlayer2Input.disabled = isSingles;
+}
+
+const sideAPlayer2Input = document.getElementById('create-a2-name');
+const sideBPlayer2Input = document.getElementById('create-b2-name');
+
+updatePlayerInputs();
+document
+    .getElementById('match-type')
+    .addEventListener('change', updatePlayerInputs);
 
 const socket = io();
 
