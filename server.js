@@ -1,6 +1,11 @@
 const express = require('express');
 const http = require('http');
-const { createMatch, scorePoint, getPointStatus } = require('./match-engine.js');
+const { 
+    createMatch, 
+    scorePoint, 
+    getPointStatus,
+    startNextGame 
+} = require('./match-engine.js');
 const { Server } = require('socket.io');
 
 const app = express();
@@ -71,6 +76,20 @@ app.post('/api/undo', (request, response) => {
     io.emit('matchUpdated', buildMatchPayload(currentMatch));
     response.json(buildMatchPayload(currentMatch));
 });
+
+app.post('/api/next-game', (request, response) => {
+    try {
+        const updatedMatch = startNextGame(currentMatch, request.body);
+        matchHistory.push(currentMatch);
+        currentMatch = updatedMatch;
+
+        io.emit('matchUpdated', buildMatchPayload(currentMatch));
+        response.json(buildMatchPayload(currentMatch));
+    } catch (error) {
+        response.status(400).json({ error: error.message });
+    }
+});
+
 
 io.on('connection', (socket) => {
     socket.emit('matchUpdated', buildMatchPayload(currentMatch));
