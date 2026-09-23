@@ -37,10 +37,7 @@ app.get('/api/match', (request, response) => {
 
 app.post('/api/match', (request, response) => {
     try {
-        currentMatch = createMatch(
-            request.body.playerAName,
-            request.body.playerBName
-        );
+        currentMatch = createMatch(request.body);
 
         matchHistory = [];
 
@@ -52,9 +49,9 @@ app.post('/api/match', (request, response) => {
     }
 });
 
-app.post('/api/score/:player', (request, response) => {
+app.post('/api/score/:side', (request, response) => {
     try {
-        const updatedMatch = scorePoint(currentMatch, request.params.player);
+        const updatedMatch = scorePoint(currentMatch, request.params.side);
         matchHistory.push(currentMatch);
         currentMatch = updatedMatch;
 
