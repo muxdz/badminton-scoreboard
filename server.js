@@ -1,6 +1,11 @@
 const express = require('express');
 const http = require('http');
-const { createMatch, scorePoint, getPointStatus } = require('./match-state.js');
+const { 
+    createMatch, 
+    scorePoint, 
+    getPointStatus,
+    startNextGame 
+} = require('./match-engine.js');
 const { Server } = require('socket.io');
 
 const app = express();
@@ -10,15 +15,21 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server);
 
-let currentMatch = createMatch('playerA', 'playerB');
+let currentMatch = createMatch({
+        format: 'singles',
+        sideAPlayers: [{ id: 'a1', name: 'Alice' }],
+        sideBPlayers: [{ id: 'b1', name: 'Bob' }],
+        startingServerId: 'a1',
+        startingReceiverId: 'b1'
+    });
 let matchHistory = [];
 
 function buildMatchPayload(match) {
     return {
         ...match,
         pointStatus: {
-            playerA: getPointStatus(match, 'playerA'),
-            playerB: getPointStatus(match, 'playerB')
+            sideA: getPointStatus(match, 'sideA'),
+            sideB: getPointStatus(match, 'sideB')
         },
         canUndo: matchHistory.length > 0
     }
@@ -31,10 +42,7 @@ app.get('/api/match', (request, response) => {
 
 app.post('/api/match', (request, response) => {
     try {
-        currentMatch = createMatch(
-            request.body.playerAName,
-            request.body.playerBName
-        );
+        currentMatch = createMatch(request.body);
 
         matchHistory = [];
 
@@ -46,9 +54,9 @@ app.post('/api/match', (request, response) => {
     }
 });
 
-app.post('/api/score/:player', (request, response) => {
+app.post('/api/score/:side', (request, response) => {
     try {
-        const updatedMatch = scorePoint(currentMatch, request.params.player);
+        const updatedMatch = scorePoint(currentMatch, request.params.side);
         matchHistory.push(currentMatch);
         currentMatch = updatedMatch;
 
@@ -68,6 +76,20 @@ app.post('/api/undo', (request, response) => {
     io.emit('matchUpdated', buildMatchPayload(currentMatch));
     response.json(buildMatchPayload(currentMatch));
 });
+
+app.post('/api/next-game', (request, response) => {
+    try {
+        const updatedMatch = startNextGame(currentMatch, request.body);
+        matchHistory.push(currentMatch);
+        currentMatch = updatedMatch;
+
+        io.emit('matchUpdated', buildMatchPayload(currentMatch));
+        response.json(buildMatchPayload(currentMatch));
+    } catch (error) {
+        response.status(400).json({ error: error.message });
+    }
+});
+
 
 io.on('connection', (socket) => {
     socket.emit('matchUpdated', buildMatchPayload(currentMatch));

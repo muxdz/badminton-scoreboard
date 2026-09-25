@@ -21,6 +21,18 @@
             <span id="control-error-message"></span>
         </div>
 
+        <section class="next-game-panel" id="next-game-panel" hidden>
+            <h2 id="next-game-title">Next game</h2>
+            <p>Game <span id="next-game-number"></span></p>
+            <form id="next-game-form">
+                <select id="next-server">
+                </select>
+                <select id="next-receiver">
+                </select>
+                <button id="start-next-game">Start game</button>
+            </form>
+        </section>
+
         <section class="live-panel" aria-labelledby="live-match-title">
             <div class="live-header">
                 <h2 id="live-match-title">Live match</h2>
@@ -68,13 +80,22 @@
                 </div>
             </div>
             <form id="new-match-form">
-                <label>
-                    <span>Player A</span>
-                    <input type="text" id="create-a-name" name="playerAName" autocomplete="off" placeholder="Enter player name" required>
+                <label for="match-type">
+                    <span>Match Type</span>
+                    <select id="match-type" name="format" required>
+                        <option value="singles">Singles</option>
+                        <option value="doubles">Doubles</option>
+                    </select>
                 </label>
                 <label>
-                    <span>Player B</span>
-                    <input type="text" id="create-b-name" name="playerBName" autocomplete="off" placeholder="Enter player name" required>
+                    <span>Side A</span>
+                    <input type="text" id="create-a1-name" name="sideAPlayer1" autocomplete="off" placeholder="Enter player name" required>
+                    <input type="text" id="create-a2-name" name="sideAPlayer2" autocomplete="off" placeholder="Enter player name" required>
+                </label>
+                <label>
+                    <span>Side B</span>
+                    <input type="text" id="create-b1-name" name="sideBPlayer1" autocomplete="off" placeholder="Enter player name" required>
+                    <input type="text" id="create-b2-name" name="sideBPlayer2" autocomplete="off" placeholder="Enter player name" required>
                 </label>
                 <button id="create-match" type="submit">Create match</button>
             </form>
