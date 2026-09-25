@@ -86,6 +86,31 @@ function renderMatch(match) {
     document.getElementById('add-point-player-b').disabled = scoringDisabled;
 
     document.getElementById('undo').disabled = !match.canUndo;
+
+    if (match.status === 'between-games') {
+        document.getElementById('next-game-panel').hidden = false;
+
+        const servingSide = match.nextGameServingSide;
+        const receiverSide = servingSide === 'sideA' ? 'sideB' : 'sideA';
+
+        const servingPlayers = match.sides[servingSide].players;
+        const receiverPlayers = match.sides[receiverSide].players;
+
+        const serverSelect = document.getElementById('next-server');
+        const receiverSelect = document.getElementById('next-receiver');
+
+        serverSelect.replaceChildren(
+            ...servingPlayers.map((player) => new Option(player.name, player.id))
+        );
+
+        receiverSelect.replaceChildren(
+            ...receiverPlayers.map((player) => new Option(player.name, player.id))
+        );
+
+        document.getElementById('next-game-number').textContent = match.gameNumber;
+    } else {
+        document.getElementById('next-game-panel').hidden = true;
+    }
 }
 
 async function loadMatch() {
@@ -189,6 +214,34 @@ document.getElementById('new-match-form')
             });
         }
     });
+
+document.getElementById('next-game-form')
+    .addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+            const serverId = document.getElementById('next-server').value;
+            const receiverId = document.getElementById('next-receiver').value;
+
+            const response = await fetch(`/api/next-game/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    startingServerId: serverId,
+                    startingReceiverId: receiverId
+                })
+            });
+
+            const data = await readResponse(response);
+
+            clearError();
+            renderMatch(data);
+        } catch (error) {
+            showError(error.message || 'Could not start the next game. Check the connection and try again.');
+        }
+    })
 
 function updatePlayerInputs() {
     const isSingles = document.getElementById('match-type').value === 'singles';
